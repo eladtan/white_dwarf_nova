@@ -15,5 +15,5 @@ env = Environment(ENV = os.environ,
                   #CXXFLAGS=' -g -Og -Wfatal-errors ')
                   CXXFLAGS=' -Weverything -Werror -ferror-limit=1 -Wno-error=padded -O2 ')
                   
-env.Program(['rich.cpp','fermi_table.cpp','eos_fermi.f90','tables_module.f90',
+env.Program(['nuclear_burn.cpp','rich.cpp','fermi_table.cpp','eos_fermi.f90','tables_module.f90',
              'rho_enr.f90','rho_tmp.f90','rho_prs.f90','tmp_prs.f90','enr_prs.f90'])
