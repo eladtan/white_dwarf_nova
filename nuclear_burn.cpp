@@ -57,9 +57,13 @@ namespace {
   template<class S, class T> const T& safe_retrieve(const map<S,T>& m,
 						    const S& s)
   {
+    /*
     map<S,T>::const_iterator it = m.find(s);
     assert(it!=m.end());
     return it->second;
+    */
+    assert(m.find(s)!=m.end());
+    return m.find(s)->second;
   }
 
   pair<double,double> calc_average_atomic_properties
@@ -73,7 +77,7 @@ namespace {
 	  atomic_properties.begin();
 	it!=atomic_properties.end();
 	++it){
-      const double mass_frac = safe_retrieve(tracers,it->first);
+      const double mass_frac = safe_retrieve(compositions,it->first);
       const double A = it->second.first;
       const double Z = it->second.second;
       total += mass_frac;
