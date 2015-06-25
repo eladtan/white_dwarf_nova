@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include "source/newtonian/test_2d/main_loop_2d.hpp"
+#include "fermi_table.hpp"
 
 using std::map;
 using std::string;

@@ -9,7 +9,7 @@ extern "C" {
 		  double* atomw,
 		  double* atomn,
 		  double* dedtmp,
-		  int* metters,
+		  int* matters,
 		  double* dt,
 		  double* qrec,
 		  int* nse,
@@ -24,7 +24,7 @@ namespace {
 						 double energy,
 						 double tburn,
 						 vector<double> xn,
-						 pair<double> az,
+						 pair<double,double> az,
 						 double dt)
   {
     int indexeos = 0;
@@ -33,7 +33,8 @@ namespace {
     double qrec = 0;
     int nse = 0;
     double tmp_nse = 1e10;
-    char[80] screen_type = "default";
+    char screen_type[80] = "default";
+    int key_done = 0;
     burn_step_(&indexeos,
 	       &density,
 	       &energy,
@@ -42,11 +43,14 @@ namespace {
 	       &az.first,
 	       &az.second,
 	       &dedtmp,
+	       &matters,
 	       &dt,
 	       &qrec,
 	       &nse,
 	       &tmp_nse,
-	       &screen_type);
+	       &key_done,
+	       screen_type);
+    assert(key_done==1);
     return pair<double,vector<double> >(qrec,xn);
   }
 
