@@ -14,7 +14,8 @@ class NuclearBurn: public Manipulate
 {
 public:
   NuclearBurn(const map<string,pair<double,double> >& atomic_propeties,
-	      const string& ignore_label);
+	      const string& ignore_label,
+	      const FermiTable& eos);
 
   void operator()(hdsim& sim);
   
