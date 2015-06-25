@@ -81,7 +81,10 @@ namespace {
     vector<double> res;
 
     ifstream f(fname.c_str());
-    assert(f);
+    if(!f){
+      cout << "missing file: " << fname << endl;
+      assert(f);
+    }
     double buf = 0;
     while(f>>buf)
       res.push_back(buf);
