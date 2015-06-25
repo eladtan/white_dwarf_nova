@@ -245,3 +245,8 @@ double FermiTable::sd2p(double /*entropy*/, double /*density*/,
 {
   throw "Method not implemented";
 }
+
+const map<string,pair<double,double> >& FermiTable::getAtomicProperties(void) const
+{
+  return atomic_properties_;
+}

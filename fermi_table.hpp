@@ -137,7 +137,8 @@ public:
 		      ThermodynamicVariables& tv) const;
 
   std::pair<double,double> calcAverageAtomicProperties(const map<string,double>& tracers) const;
-							  
+
+  const map<string,pair<double,double> >& getAtomicProperties(void) const;
 
 private:
   mutable int im_gas_;
