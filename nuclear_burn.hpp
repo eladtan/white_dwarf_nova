@@ -1,7 +1,15 @@
 #ifndef NUCLEAR_BURN_HPP
 #define NUCLEAR_BURN_HPP 1
 
-class NuclearBurn
+#include <map>
+#include <string>
+#include "source/newtonian/test_2d/main_loop_2d.hpp"
+
+using std::map;
+using std::string;
+using std::pair;
+
+class NuclearBurn: public Manipulate
 {
 public:
   NuclearBurn(const map<string,pair<double,double> >& atomic_propeties,
