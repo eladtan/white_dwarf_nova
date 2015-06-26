@@ -66,25 +66,25 @@ namespace {
     return m.find(s)->second;
   }
 
-  pair<double,double> calc_average_atomic_properties
-  (const map<string,pair<double,double> >& atomic_properties,
-   const map<string,double>& compositions)
+  vector<double> serialize_tracers(const map<string,double>& tracers)
   {
-    double total = 0;
-    double aa = 0;
-    double zz = 0;
-    for(map<string,pair<double,double> >::const_iterator it=
-	  atomic_properties.begin();
-	it!=atomic_properties.end();
-	++it){
-      const double mass_frac = safe_retrieve(compositions,it->first);
-      const double A = it->second.first;
-      const double Z = it->second.second;
-      total += mass_frac;
-      aa += mass_frac/A;
-      zz += mass_frac*Z/A;
-    }
-    return pair<double,double>(total/aa,zz/aa);
+    vector<double> res;
+    for(map<string,double>::const_iterator it=tracers.begin();
+	it!=tracers.end();
+	++it)
+      res.push_back(it->second);
+    return res;
+  }
+
+  map<string,double> reassemble_tracers(const vector<double>& compositions,
+					const map<string,double>& old)
+  {
+    map<string,double> res;
+    for(pair<size_t,map<string,double>::const_iterator> index(0,old.begin());
+	index.second!=old.end();
+	++index.first,++index.second)
+      res[index.second->first] = compositions[index.first];
+    return res;
   }
 }
 
@@ -105,6 +105,7 @@ void NuclearBurn::operator()(hdsim& sim)
     ComputationalCell& cell = cells[i];
     if(safe_retrieve(cell.stickers,ignore_label_))
       continue;
+    //    const double temperature = eos_.
   }
   sim.recalculateExtensives();
 }
