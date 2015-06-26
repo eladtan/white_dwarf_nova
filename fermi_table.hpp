@@ -96,9 +96,13 @@ public:
    */
   double dpaz2c(double density, double pressure, std::pair<double, double> aap) const;
 
+  double dpaz2t(double density, double pressure, pair<double,double> aap) const;
+
   double dp2c(double density, double pressure, const map<string,double>& tracers) const;
 
   double dp2e(double density, double pressure, const map<string,double>& tracers) const;
+
+  double dp2t(double density, double pressure, const map<string,double>& tracers) const;
 
   double dp2s(double density, double pressure, const map<string,double>& tracers) const;
 

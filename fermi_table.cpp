@@ -76,6 +76,17 @@ double FermiTable::dpaz2e(double density, double pressure,
 			     &ThermodynamicVariables::energy);
 }
 
+double FermiTable::dpaz2t(double density, double pressure,
+			  pair<double,double> aap) const
+{
+  return calcSingleThermoVar(std::pair<double,double ThermodynamicVariables::*>
+			     (density,&ThermodynamicVariables::density),
+			     std::pair<double,double ThermodynamicVariables::*>
+			     (pressure,&ThermodynamicVariables::pressure),
+			     aap,
+			     &ThermodynamicVariables::temperature);
+}
+
 double FermiTable::deaz2c(double density, double energy,
 			  std::pair<double, double> aap) const
 {
@@ -116,6 +127,11 @@ double FermiTable::dp2c(double density, double pressure, const map<string,double
 double FermiTable::dp2e(double density, double pressure, const map<string,double>& tracers) const
 {
   return dpaz2e(density,pressure,calcAverageAtomicProperties(tracers));
+}
+
+double FermiTable::dp2t(double density, double pressure, const map<string,double>& tracers) const
+{
+  return dpaz2t(density,pressure,calcAverageAtomicProperties(tracers));
 }
 
 double FermiTable::dt2e(double density, double temperature,
