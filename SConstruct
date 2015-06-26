@@ -7,7 +7,7 @@ linkflags = ''
 if compiler=='g++':
     cflags = ' -Wfatal-errors '
     if int(debug):
-        clags += ' -Og -g -pg '
+        cflags += ' -Og -g -pg '
         linkflags = ' -g -pg '
     else:
         cflags += ' -O3 '
@@ -22,7 +22,7 @@ else:
     raise NameError('unsupported compiler')
 
 if int(debug):
-    f90flags = ' -g -Og -ffpe-trap=invalid,overflow,underflow,zero,denormal -ffpe-summary=all '
+    f90flags = ' -g -Og '
 else:
     f90flags = ' -O3 '
 
