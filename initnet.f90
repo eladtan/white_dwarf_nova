@@ -2,7 +2,8 @@
     include 'real8.com'
     dimension inp(5),iop(5)
     include 'network.com'
-    character*(*) net_file
+    !    character*(*) net_file
+    character(80) net_file
 !  ------------------------------------------------------------------
 !      mat/ he,c,o,ne,mg,si,s,ar,ca,ti,cr,fe,ni/
 !
@@ -14,6 +15,7 @@
 !  ===================================================================
 !                                     My Alpha Net
     nt=27
+    write(*,*) net_file
     open(nt,file=net_file,status='old')
     print*,' initnet-nt-file ',nt,net_file
 !

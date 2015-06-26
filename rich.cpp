@@ -769,7 +769,8 @@ int main(void)
   SafeTimeTermination term_cond(tf,1e6);
   ConsecutiveSnapshots diag(new ConstantTimeInterval(tf/10),
 			    new Rubric("snapshot_",".h5"));
-  NuclearBurn manip(string("ghost"),
+  NuclearBurn manip(string("alpha_table"),
+		    string("ghost"),
 		    sim_data.getEOS());
   main_loop(sim,
 	    term_cond,

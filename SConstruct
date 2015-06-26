@@ -41,4 +41,4 @@ env.Program('rich',
              'rho_enr.f90','rho_tmp.f90','rho_prs.f90','tmp_prs.f90','enr_prs.f90',
              'burn_step.f90','nse.f90','nse_equilib.f90','net_step.f90',
              'sigmav_rates.f90','alpha_rates.f90','linsys_burn.f90','sigmav.f90',
-             'screening.f90'])
+             'screening.f90','initnet.f90'])

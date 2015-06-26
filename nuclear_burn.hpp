@@ -13,7 +13,8 @@ using std::pair;
 class NuclearBurn: public Manipulate
 {
 public:
-  NuclearBurn(const string& ignore_label,
+  NuclearBurn(const string& rfile,
+	      const string& ignore_label,
 	      const FermiTable& eos);
 
   void operator()(hdsim& sim);

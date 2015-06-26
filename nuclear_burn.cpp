@@ -1,7 +1,11 @@
 #include "nuclear_burn.hpp"
 #include "source/misc/vector_initialiser.hpp"
+#include <fstream>
 
 extern "C" {
+
+  void initnet_(const char* rfile);
+
   void burn_step_(int* indexeos,
 		  double* density,
 		  double* energy,
@@ -51,7 +55,17 @@ namespace {
 	       &tmp_nse,
 	       &key_done,
 	       screen_type);
-    assert(key_done==1);
+    if(key_done!=1){
+      std::ofstream f("burn_step_error_report.txt");
+      f << "density = " << density << "\n";
+      f << "energy = " << energy << "\n";
+      f << "temperature = " << tburn << "\n";
+      f << "atomic weight = " << az.first << "\n";
+      f << "atomic number = " << az.second << "\n";
+      f << "dt = " << dt << "\n";
+      f.close();
+      assert(key_done==1);
+    }
     return pair<double,vector<double> >(qrec,xn);
   }
 
@@ -71,8 +85,9 @@ namespace {
 				   const vector<string>& isotope_list)
   {
     vector<double> res;
-    for(size_t i=0;i<isotope_list.size();++i)
-      res.push_back(safe_retrieve(tracers,isotope_list[i]));
+    for(size_t i=0;i<isotope_list.size();++i){
+      res.push_back(safe_retrieve(tracers,isotope_list.at(i)));
+    }
     return res;
   }
 
@@ -88,7 +103,8 @@ namespace {
 }
 
 NuclearBurn::NuclearBurn
-(const string& ignore_label,
+(const string& rfile,
+ const string& ignore_label,
  const FermiTable& eos):
   t_prev_(0),
   ignore_label_(ignore_label),
@@ -105,7 +121,10 @@ NuclearBurn::NuclearBurn
 		("Ti44")
 		("Cr48")
 		("Fe52")
-		("Ni56")()) {}
+		("Ni56")())
+{
+  initnet_(rfile.c_str());
+}
 
 void NuclearBurn::operator()(hdsim& sim)
 {
