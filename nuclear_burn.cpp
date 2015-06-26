@@ -1,4 +1,5 @@
 #include "nuclear_burn.hpp"
+#include "source/misc/vector_initialiser.hpp"
 
 extern "C" {
   void burn_step_(int* indexeos,
@@ -66,24 +67,22 @@ namespace {
     return m.find(s)->second;
   }
 
-  vector<double> serialize_tracers(const map<string,double>& tracers)
+  vector<double> serialize_tracers(const map<string,double>& tracers,
+				   const vector<string>& isotope_list)
   {
     vector<double> res;
-    for(map<string,double>::const_iterator it=tracers.begin();
-	it!=tracers.end();
-	++it)
-      res.push_back(it->second);
+    for(size_t i=0;i<isotope_list.size();++i)
+      res.push_back(safe_retrieve(tracers,isotope_list[i]));
     return res;
   }
 
   map<string,double> reassemble_tracers(const vector<double>& compositions,
-					const map<string,double>& old)
+					const vector<string>& isotope_list)
   {
+    assert(compositions.size()==isotope_list.size());
     map<string,double> res;
-    for(pair<size_t,map<string,double>::const_iterator> index(0,old.begin());
-	index.second!=old.end();
-	++index.first,++index.second)
-      res[index.second->first] = compositions[index.first];
+    for(size_t i=0;i<compositions.size();++i)
+      res[isotope_list[i]] = compositions[i];
     return res;
   }
 }
@@ -93,7 +92,20 @@ NuclearBurn::NuclearBurn
  const FermiTable& eos):
   t_prev_(0),
   ignore_label_(ignore_label),
-  eos_(eos) {}
+  eos_(eos),
+  isotope_list_(VectorInitialiser<string>("He4")
+		("C12")
+		("O16")
+		("Ne20")
+		("Mg24")
+		("Si28")
+		("S32")
+		("Ar36")
+		("Ca40")
+		("Ti44")
+		("Cr48")
+		("Fe52")
+		("Ni56")()) {}
 
 void NuclearBurn::operator()(hdsim& sim)
 {
@@ -111,11 +123,12 @@ void NuclearBurn::operator()(hdsim& sim)
 				    cell.tracers);
     const pair<double,vector<double> > qrec_tracers =
       burn_step_wrapper(cell.density,energy,temperature,
-			serialize_tracers(cell.tracers),
+			serialize_tracers(cell.tracers,
+					  isotope_list_),
 			eos_.calcAverageAtomicProperties(cell.tracers),
 			dt);
     const double new_energy = energy + dt*qrec_tracers.first;
-    cell.tracers = reassemble_tracers(qrec_tracers.second,cell.tracers);
+    cell.tracers = reassemble_tracers(qrec_tracers.second,isotope_list_);
     cell.pressure = eos_.de2p(cell.density, new_energy, cell.tracers);
   }
   sim.recalculateExtensives();

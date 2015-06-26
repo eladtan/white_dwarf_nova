@@ -23,6 +23,7 @@ private:
   mutable double t_prev_;
   const string ignore_label_;
   const FermiTable& eos_;
+  const vector<string> isotope_list_;
 };
 
 #endif // NUCLEAR_BURN_HPP
