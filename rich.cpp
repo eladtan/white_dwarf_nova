@@ -17,8 +17,12 @@
 #include "source/newtonian/two_dimensional/simple_extensive_updater.hpp"
 #include "source/newtonian/two_dimensional/simple_cell_updater.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
+#include "source/newtonian/test_2d/main_loop_2d.hpp"
+#include "source/newtonian/test_2d/consecutive_snapshots.hpp"
+#include "nuclear_burn.hpp"
 
 using namespace std;
+using namespace simulation2d;
 
 namespace units {
 
@@ -726,6 +730,11 @@ public:
     return sim_;
   }
 
+  const FermiTable& getEOS(void) const
+  {
+    return eos_;
+  }
+
 private:
   const CylindricalSymmetry pg_;
   const SquareBox outer_;
@@ -756,10 +765,23 @@ int main(void)
 			       "velocity_list.txt"));
   hdsim& sim = sim_data.getSim();
   write_snapshot_to_hdf5(sim,"initial.h5");
+  const double tf = 0.01;
+  SafeTimeTermination term_cond(tf,1e6);
+  ConsecutiveSnapshots diag(new ConstantTimeInterval(tf/10),
+			    new Rubric("snapshot_",".h5"));
+  NuclearBurn manip(string("ghost"),
+		    sim_data.getEOS());
+  main_loop(sim,
+	    term_cond,
+	    &hdsim::TimeAdvance,
+	    &diag,
+	    &manip);
+  /*
   while(sim.getTime()<10){
     cout << sim.getTime() << endl;
     sim.TimeAdvance();
   }
+  */
   //  sim.TimeAdvance();
   write_snapshot_to_hdf5(sim,"final.h5");
   return 0;

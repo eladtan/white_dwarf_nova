@@ -89,10 +89,8 @@ namespace {
 }
 
 NuclearBurn::NuclearBurn
-(const map<string,pair<double,double> >& atomic_properties,
- const string& ignore_label,
+(const string& ignore_label,
  const FermiTable& eos):
-  atomic_properties_(atomic_properties),
   t_prev_(0),
   ignore_label_(ignore_label),
   eos_(eos) {}

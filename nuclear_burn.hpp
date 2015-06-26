@@ -13,15 +13,13 @@ using std::pair;
 class NuclearBurn: public Manipulate
 {
 public:
-  NuclearBurn(const map<string,pair<double,double> >& atomic_propeties,
-	      const string& ignore_label,
+  NuclearBurn(const string& ignore_label,
 	      const FermiTable& eos);
 
   void operator()(hdsim& sim);
   
 private:
 
-  const map<string,pair<double,double> > atomic_properties_;
   mutable double t_prev_;
   const string ignore_label_;
   const FermiTable& eos_;
