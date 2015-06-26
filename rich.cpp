@@ -19,7 +19,9 @@
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include "source/newtonian/test_2d/main_loop_2d.hpp"
 #include "source/newtonian/test_2d/consecutive_snapshots.hpp"
+#include "source/newtonian/test_2d/multiple_diagnostics.hpp"
 #include "nuclear_burn.hpp"
+#include "source/misc/simple_io.hpp"
 
 using namespace std;
 using namespace simulation2d;
@@ -681,6 +683,22 @@ namespace {
     const double gravitation_constant_;
     const double section2shell_;
   };
+
+  class WriteCycle: public DiagnosticFunction
+  {
+  public:
+
+    WriteCycle(const string& fname):
+      fname_(fname) {}
+
+    void operator()(const hdsim& sim)
+    {
+      write_number(sim.getCycle(),fname_);
+    }
+
+  private:
+    const string fname_;
+  };
 }
 
 class SimData
@@ -765,10 +783,16 @@ int main(void)
 			       "velocity_list.txt"));
   hdsim& sim = sim_data.getSim();
   write_snapshot_to_hdf5(sim,"initial.h5");
-  const double tf = 0.01;
+  const double tf = 1;
   SafeTimeTermination term_cond(tf,1e6);
-  ConsecutiveSnapshots diag(new ConstantTimeInterval(tf/10),
-			    new Rubric("snapshot_",".h5"));
+  ConsecutiveSnapshots diag1(new ConstantTimeInterval(tf/10),
+			     new Rubric("snapshot_",".h5"));
+  WriteTime diag2("time.txt");
+  WriteCycle diag3("cycle.txt");
+  MultipleDiagnostics diag;
+  diag.diag_list.push_back(&diag1);
+  diag.diag_list.push_back(&diag2);
+  diag.diag_list.push_back(&diag3);
   NuclearBurn manip(string("alpha_table"),
 		    string("ghost"),
 		    sim_data.getEOS());
@@ -777,13 +801,6 @@ int main(void)
 	    &hdsim::TimeAdvance,
 	    &diag,
 	    &manip);
-  /*
-  while(sim.getTime()<10){
-    cout << sim.getTime() << endl;
-    sim.TimeAdvance();
-  }
-  */
-  //  sim.TimeAdvance();
   write_snapshot_to_hdf5(sim,"final.h5");
   return 0;
 }
