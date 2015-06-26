@@ -1,19 +1,40 @@
 import os
 
+debug = ARGUMENTS.get('debug',0)
+compiler = ARGUMENTS.get('compiler','clang++')
+
+linkflags = ''
+if compiler=='g++':
+    cflags = ' -Wfatal-errors '
+    if int(debug):
+        clags += ' -Og -g -pg '
+        linkflags = ' -g -pg '
+    else:
+        cflags += ' -O3 '
+elif compiler=='clang++':
+    cflags = '-Weverything -Werror -ferror-limit=1 -Wno-error=padded'
+    if int(debug):
+        cflags += ' -O0 -g -pg'
+        linkflags = ' -g -pg'
+    else:
+        cflags += ' -O3 -march=native'
+else:
+    raise NameError('unsupported compiler')
+
+if int(debug):
+    f90flags = ' -g -Og -ffpe-trap=invalid,overflow,underflow,zero,denormal -ffpe-summary=all '
+else:
+    f90flags = ' -O3 '
+
 env = Environment(ENV = os.environ,
-                  CXX='clang++',
-                  #CXX='g++',
+                  CXX=compiler,
                   CPPPATH=[os.environ['RICH_ROOT']+'/source',
                            os.environ['RICH_ROOT']],
                   LIBPATH=[os.environ['RICH_ROOT'],'.',os.environ['HDF5_LIB_PATH']],
                   LIBS=['rich','hdf5','hdf5_cpp','gfortran'],
-                  #LINKFLAGS=' -g -Og ',
-                  LINKFLAGS='',
-                  #F90FLAGS=' -g -Og -ffpe-trap=invalid,overflow,underflow,zero,denormal -ffpe-summary=all ',
-                  F90FLAGS=' -O2 ',
-                  #CXXFLAGS='-Weverything -Werror -ferror-limit=1 -Wno-error=padded -g -O0 ')
-                  #CXXFLAGS=' -g -Og -Wfatal-errors ')
-                  CXXFLAGS=' -Weverything -Werror -ferror-limit=1 -Wno-error=padded -O2 ')
+                  LINKFLAGS=linkflags,
+                  F90FLAGS=f90flags,
+                  CXXFLAGS=cflags)
                   
 env.Program('rich',
             ['nuclear_burn.cpp','rich.cpp','fermi_table.cpp','eos_fermi.f90','tables_module.f90',
