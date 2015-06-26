@@ -105,7 +105,20 @@ void NuclearBurn::operator()(hdsim& sim)
     ComputationalCell& cell = cells[i];
     if(safe_retrieve(cell.stickers,ignore_label_))
       continue;
-    //    const double temperature = eos_.
+    const double temperature = eos_.dp2t(cell.density,
+					 cell.pressure,
+					 cell.tracers);
+    const double energy = eos_.dp2e(cell.density,
+				    cell.pressure,
+				    cell.tracers);
+    const pair<double,vector<double> > qrec_tracers =
+      burn_step_wrapper(cell.density,energy,temperature,
+			serialize_tracers(cell.tracers),
+			eos_.calcAverageAtomicProperties(cell.tracers),
+			dt);
+    const double new_energy = energy + dt*qrec_tracers.first;
+    cell.tracers = reassemble_tracers(qrec_tracers.second,cell.tracers);
+    cell.pressure = eos_.de2p(cell.density, new_energy, cell.tracers);
   }
   sim.recalculateExtensives();
 }
