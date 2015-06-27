@@ -785,14 +785,13 @@ int main(void)
   write_snapshot_to_hdf5(sim,"initial.h5");
   const double tf = 1;
   SafeTimeTermination term_cond(tf,1e6);
-  ConsecutiveSnapshots diag1(new ConstantTimeInterval(tf/10),
-			     new Rubric("snapshot_",".h5"));
-  WriteTime diag2("time.txt");
-  WriteCycle diag3("cycle.txt");
-  MultipleDiagnostics diag;
-  diag.diag_list.push_back(&diag1);
-  diag.diag_list.push_back(&diag2);
-  diag.diag_list.push_back(&diag3);
+  vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
+     [new ConsecutiveSnapshots(new ConstantTimeInterval(tf/10),
+			       new Rubric("snapshot_",".h5"))]
+     [new WriteTime("time.txt")]
+     [new WriteCycle("cycle.txt")]
+    ();
+  MultipleDiagnostics diag(diag_list);
   NuclearBurn manip(string("alpha_table"),
 		    string("ghost"),
 		    sim_data.getEOS());
