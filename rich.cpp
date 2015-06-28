@@ -22,6 +22,7 @@
 #include "source/newtonian/test_2d/multiple_diagnostics.hpp"
 #include "nuclear_burn.hpp"
 #include "source/misc/simple_io.hpp"
+#include "temperature_appendix.hpp"
 
 using namespace std;
 using namespace simulation2d;
@@ -783,11 +784,13 @@ int main(void)
 			       "velocity_list.txt"));
   hdsim& sim = sim_data.getSim();
   write_snapshot_to_hdf5(sim,"initial.h5");
-  const double tf = 1;
+  const double tf = 0.01;
   SafeTimeTermination term_cond(tf,1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
      [new ConsecutiveSnapshots(new ConstantTimeInterval(tf/10),
-			       new Rubric("snapshot_",".h5"))]
+			       new Rubric("snapshot_",".h5"),
+			       vector<DiagnosticAppendix*>
+			       (1,new TemperatureAppendix(sim_data.getEOS())))]
      [new WriteTime("time.txt")]
      [new WriteCycle("cycle.txt")]
     ();
@@ -800,6 +803,8 @@ int main(void)
 	    &hdsim::TimeAdvance,
 	    &diag,
 	    &manip);
-  write_snapshot_to_hdf5(sim,"final.h5");
+  write_snapshot_to_hdf5(sim,"final.h5",
+			 vector<DiagnosticAppendix*>
+			 (1,new TemperatureAppendix(sim_data.getEOS())));
   return 0;
 }

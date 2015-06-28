@@ -1,5 +1,6 @@
 #include "nuclear_burn.hpp"
 #include "source/misc/vector_initialiser.hpp"
+#include "safe_retrieve.hpp"
 #include <fstream>
 
 extern "C" {
@@ -67,18 +68,6 @@ namespace {
       assert(key_done==1);
     }
     return pair<double,vector<double> >(qrec,xn);
-  }
-
-  template<class S, class T> const T& safe_retrieve(const map<S,T>& m,
-						    const S& s)
-  {
-    /*
-    map<S,T>::const_iterator it = m.find(s);
-    assert(it!=m.end());
-    return it->second;
-    */
-    assert(m.find(s)!=m.end());
-    return m.find(s)->second;
   }
 
   vector<double> serialize_tracers(const map<string,double>& tracers,
