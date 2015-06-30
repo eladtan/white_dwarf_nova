@@ -118,6 +118,7 @@ NuclearBurn::NuclearBurn
 void NuclearBurn::operator()(hdsim& sim)
 {
   const double dt = sim.getTime() - t_prev_;
+  t_prev_ = sim.getTime();
   vector<ComputationalCell>& cells = sim.getAllCells();
   for(size_t i=0;i<cells.size();++i){
     ComputationalCell& cell = cells[i];
