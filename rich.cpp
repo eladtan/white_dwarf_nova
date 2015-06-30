@@ -784,10 +784,10 @@ int main(void)
 			       "velocity_list.txt"));
   hdsim& sim = sim_data.getSim();
   write_snapshot_to_hdf5(sim,"initial.h5");
-  const double tf = 0.01;
+  const double tf = 10;
   SafeTimeTermination term_cond(tf,1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
-     [new ConsecutiveSnapshots(new ConstantTimeInterval(tf/10),
+     [new ConsecutiveSnapshots(new ConstantTimeInterval(tf/1000),
 			       new Rubric("snapshot_",".h5"),
 			       vector<DiagnosticAppendix*>
 			       (1,new TemperatureAppendix(sim_data.getEOS())))]
