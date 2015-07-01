@@ -397,7 +397,7 @@ namespace {
 	const Primitive right =
 	  convert_to_primitive(right_cell, eos);
 	const Primitive left =
-	  (abs(tess.GetMeshPoint(static_cast<int>(right_index)))>radius_) ?
+	  (abs(tess.GetMeshPoint(static_cast<int>(left_index)))>radius_) ?
 	  right : reflect(right,p);
 	return rotate_solve_rotate_back
 	  (rs_,left,right,velocity,n,p);
@@ -406,7 +406,7 @@ namespace {
 	const Primitive left =
 	  convert_to_primitive(left_cell, eos);
 	const Primitive right =
-	  (abs(tess.GetMeshPoint(static_cast<int>(left_index)))>radius_) ?
+	  (abs(tess.GetMeshPoint(static_cast<int>(right_index)))>radius_) ?
 	  left : reflect(left,p);
 	return rotate_solve_rotate_back
 	  (rs_,left,right,velocity,n,p);
@@ -507,7 +507,7 @@ namespace {
       const double pressure = eos.dt2p(density, temperature, res.at(i).tracers);
       res.at(i).density = density;
       res.at(i).pressure = pressure;
-      res.at(i).velocity = 0*r*velocity/radius;
+      res.at(i).velocity = r*velocity/radius;
     }
     for(map<string,Interpolator*>::iterator it=
 	  tracer_intepolators.begin();
