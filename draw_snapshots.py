@@ -56,7 +56,7 @@ def plot_all(zfunc, zname):
     #             fname.replace('snapshot',zname).replace('.h5','.png'))
     # for fname in flist]
 
-def log10_number_density_cgs(f):
+def log10_density_cgs(f):
 
     import numpy
 
@@ -161,7 +161,7 @@ def Ni56_prof(f):
 def main():
 
     import matplotlib
-    matplotlib.use('Qt4Agg')
+    matplotlib.use('Agg')
 
     import numpy
 
@@ -170,7 +170,7 @@ def main():
     #            'log10_temperature',
     #            'log10_temperature_0.png')
 
-    plot_all(log10_number_density_cgs, 'log10_number_density')
+    plot_all(log10_density_cgs, 'log10_density')
     plot_all(log10_temperature, 'log10_temperature')
     plot_all(x_velocity, 'x_velocity')
     plot_all(y_velocity, 'y_velocity')
