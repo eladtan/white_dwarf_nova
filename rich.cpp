@@ -39,118 +39,12 @@
 #include "calc_init_cond.hpp"
 #include "circular_section.hpp"
 #include "lazy_extensive_updater.hpp"
+#include "monopole_self_gravity.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  template<typename T> vector<T> polyfit_sc(const pair<vector<T>,vector<T> >& x_y, int deg)
-  {
-    return polyfit(x_y.first, x_y.second, deg);
-  }
-
-  vector<pair<double,double> > calc_mass_radius_list(const Tessellation& tess,
-						     const vector<ComputationalCell>& cells,
-						     const CacheData& cd)
-  {
-    vector<pair<double, double> > res;
-    for(size_t i=0;i<cells.size();++i){
-      if(cells[i].stickers.find("ghost")->second)
-	continue;
-      const double radius = abs(tess.GetCellCM(static_cast<int>(i)));
-      const double mass = cd.volumes[i]*cells[i].density;
-      res.push_back(pair<double,double>(radius,mass));
-    }
-    return res;
-  }
-
-  vector<double> calc_mass_in_shells(const vector<pair<double,double> >& mass_radius_list,
-				     const vector<double>& sample_points)
-  {
-    vector<double> res(sample_points.size(),0);
-    for(vector<pair<double,double> >::const_iterator it=
-	  mass_radius_list.begin();
-	it!=mass_radius_list.end();
-	++it){
-      for(size_t i=0;i<sample_points.size();++i){
-	if(sample_points[i]>it->first){
-	  res[i] += it->second;
-	  //	  break;
-	}
-      }
-    }
-    return res;
-  }
-
-  /*
-  vector<double> cumsum(const vector<double>& v)
-  {
-    vector<double> res(v.size(),0);
-    res[0] = v[0];
-    for(size_t i=1;i<v.size();++i)
-      res[i] = res[i-1] + v[i];
-    return res;
-  }
-  */
-  
-  class MonopoleSelfGravity: public SourceTerm
-  {
-  public:
-
-    MonopoleSelfGravity(const vector<double>& sample_radii,
-			double gravitation_constant,
-			const pair<double,double>& section_angles):
-      sample_radii_(sample_radii),
-      gravitation_constant_(gravitation_constant),
-      section2shell_(2./(cos(section_angles.first)-cos(section_angles.second))) {}
-
-    vector<Extensive> operator()
-    (const Tessellation& tess,
-     const PhysicalGeometry& /*pg*/,
-     const CacheData& cd,
-     const vector<ComputationalCell>& cells,
-     const vector<Extensive>& /*fluxes*/,
-     const vector<Vector2D>& /*point_velocities*/,
-     const double /*t*/) const
-    {
-      const vector<double> mass_sample =
-	calc_mass_in_shells(calc_mass_radius_list(tess,cells,cd),
-			    sample_radii_);
-      const Interpolator radius_mass_interp(sample_radii_,
-					    mass_sample);
-
-      /*
-      {
-	ofstream f("mass_radius.txt");
-	for(size_t i=0;i<mass_sample.size();++i){
-	  f << sample_radii_[i] << " " << mass_sample[i]*section2shell_ << endl;
-	}
-	f.close();
-      }
-      */
-
-      vector<Extensive> res(static_cast<size_t>(tess.GetPointNo()));
-      for(size_t i=0;i<res.size();++i){
-	if(cells[i].stickers.find("ghost")->second)
-	  continue;
-	const Vector2D r = tess.GetCellCM(static_cast<int>(i));
-	const double radius = abs(r);
-	const double mass = radius_mass_interp(radius)*section2shell_;
-	const Vector2D acc = (-1)*gravitation_constant_*r*mass/pow(radius,3);
-	const double volume = cd.volumes[i];
-	res[i].mass = 0;
-	res[i].momentum = volume*cells[i].density*acc;
-	res[i].energy = volume*cells[i].density*ScalarProd(acc,cells[i].velocity);
-      }
-      return res;
-    }
-
-  private:
-    const vector<double> sample_radii_;
-    const double gravitation_constant_;
-    const double section2shell_;
-  };
 
   class WriteCycle: public DiagnosticFunction
   {
