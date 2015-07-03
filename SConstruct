@@ -1,4 +1,5 @@
 import os
+import glob
 
 debug = ARGUMENTS.get('debug',0)
 compiler = ARGUMENTS.get('compiler','clang++')
@@ -37,8 +38,4 @@ env = Environment(ENV = os.environ,
                   CXXFLAGS=cflags)
                   
 env.Program('rich',
-            ['nuclear_burn.cpp','rich.cpp','fermi_table.cpp','eos_fermi.f90','tables_module.f90',
-             'rho_enr.f90','rho_tmp.f90','rho_prs.f90','tmp_prs.f90','enr_prs.f90',
-             'burn_step.f90','nse.f90','nse_equilib.f90','net_step.f90',
-             'sigmav_rates.f90','alpha_rates.f90','linsys_burn.f90','sigmav.f90',
-             'screening.f90','initnet.f90','temperature_appendix.cpp'])
+            glob.glob('*.cpp')+glob.glob('*.f90'))
