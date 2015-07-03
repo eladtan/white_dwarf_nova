@@ -34,32 +34,13 @@
 #include "initial_data.hpp"
 #include "create_pressure_reference.hpp"
 #include "rectangle_stretch.hpp"
+#include "source/tessellation/right_rectangle.hpp"
+#include "source/newtonian/test_2d/clip_grid.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  bool is_in(const Vector2D& point,
-	     const pair<Vector2D,Vector2D>& boundaries)
-  {
-    return ((boundaries.first.x<point.x) &&
-	    (boundaries.second.x>point.x) &&
-	    (boundaries.first.y<point.y) &&
-	    (boundaries.second.y>point.y));
-      
-  }
-
-  vector<Vector2D> rectangular_clip(const vector<Vector2D>& point_list,
-				    const pair<Vector2D,Vector2D>& boundaries)
-  {
-    vector<Vector2D> res;
-    for(size_t i=0;i<point_list.size();++i){
-      if(is_in(point_list.at(i),boundaries))
-	res.push_back(point_list.at(i));
-    }
-    return res;
-  }
 
   vector<Vector2D> create_grid(const pair<Vector2D,Vector2D>& boundaries,
 			       const double dq,
@@ -74,7 +55,8 @@ namespace {
       for(double q=0;q<2*M_PI;q+=dq)
 	res.push_back(Vector2D(r*cos(q),r*sin(q)));
     }
-    res = rectangular_clip(res,rectangle_stretch(boundaries,0.99));
+    //    res = rectangular_clip(res,rectangle_stretch(boundaries,0.99));
+    res = clip_grid (RightRectangle(rectangle_stretch(boundaries,0.99)),res);
     ofstream f("mesh_points.txt");
     for(size_t i=0;i<res.size();++i)
       f << res.at(i).x << " " << res.at(i).y << endl;
