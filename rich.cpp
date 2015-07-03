@@ -38,41 +38,12 @@
 #include "inner_bc.hpp"
 #include "lazy_cell_updater.hpp"
 #include "calc_init_cond.hpp"
+#include "circular_section.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  class CircularSection: public Shape2D
-  {
-  public:
-
-    CircularSection(const double radius_in,
-		    const double radius_out,
-		    const double angle_left,
-		    const double angle_right):
-      radius_in_(radius_in),
-      radius_out_(radius_out),
-      angle_left_(angle_left),
-      angle_right_(angle_right) {}
-
-    bool operator()(const Vector2D& r) const
-    {
-      const double radius = abs(r);
-      const double angle = atan2(r.y,r.x);
-      return (radius_in_<radius &&
-	      radius_out_>radius &&
-	      angle_left_<angle &&
-	      angle_right_>angle);
-    }
-
-  private:
-    const double radius_in_;
-    const double radius_out_;
-    const double angle_left_;
-    const double angle_right_;
-  };
 
   class LazyExtensiveUpdater: public ExtensiveUpdater
   {
