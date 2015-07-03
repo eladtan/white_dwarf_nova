@@ -24,16 +24,12 @@
 #include "source/misc/simple_io.hpp"
 #include "temperature_appendix.hpp"
 #include "units.hpp"
+#include "bracketed.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  bool bracketed(int low, int arg, int high)
-  {
-    return arg>=low && high>arg;
-  }
 
   map<string,pair<double,double> > generate_atomic_properties(void)
   {
