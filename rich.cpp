@@ -25,11 +25,14 @@
 #include "temperature_appendix.hpp"
 #include "units.hpp"
 #include "bracketed.hpp"
+#include "generate_atomic_properties.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
+
+  /*
 
   map<string,pair<double,double> > generate_atomic_properties(void)
   {
@@ -49,6 +52,7 @@ namespace {
     res["Ni56"] = pair<double,double>(56,28);
     return res;
   }
+  */
 
   template<class S, class T> const T& safe_map_read(const map<S,T>& m,
 						    const S& s)
