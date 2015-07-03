@@ -23,32 +23,10 @@
 #include "nuclear_burn.hpp"
 #include "source/misc/simple_io.hpp"
 #include "temperature_appendix.hpp"
+#include "units.hpp"
 
 using namespace std;
 using namespace simulation2d;
-
-namespace units {
-
-  // Metric prefixes
-  //  const double kilo = 1e3;
-  //  const double centi = 1e-2;
-
-  // Length
-  //  const double meter = 1e-2;
-
-  // Time
-  //  const double second = 1;
-
-  // Mass
-  const double gram = 1;
-
-  // Degree
-  //  const double kelvin = 1;
-
-  // Constants
-  //  const double solar_mass = 1.99e33;
-  const double gravitation_constant = 6.67e-8;
-}
 
 namespace {
 
@@ -706,7 +684,7 @@ class SimData
 {
 public:
 
-  SimData(const InitialData& id):
+  SimData(const InitialData& id, const Units& u):
     pg_(Vector2D(0,0), Vector2D(1,0)),
     outer_(Vector2D(-0.5*id.radius_mid.front(),0.9*id.radius_mid.front()),
 	   Vector2D(0.5*id.radius_mid.front(),1.2*id.radius_mid.back())),
@@ -716,11 +694,11 @@ public:
     eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
     rs_(),
     point_motion_(),
-    gravity_acc_(units::gravitation_constant*1.816490e33*units::gram,
+    gravity_acc_(u.gravitation_constant*1.816490e33*u.gram,
 		 0, Vector2D(0,0)),
     gravity_force_(gravity_acc_),
     msg_(linspace(id.radius_list.front(),id.radius_list.back(),100),
-	 units::gravitation_constant,
+	 u.gravitation_constant,
 	 pair<double,double>(M_PI*0.46,M_PI*0.54)),
     geom_force_(pg_.getAxis()),
     force_(VectorInitialiser<SourceTerm*>(&gravity_force_)
@@ -778,10 +756,12 @@ private:
 
 int main(void)
 {
+  Units units;
   SimData sim_data(InitialData("radius_list.txt",
 			       "density_list.txt",
 			       "temperature_list.txt",
-			       "velocity_list.txt"));
+			       "velocity_list.txt"),
+		   units);
   hdsim& sim = sim_data.getSim();
   write_snapshot_to_hdf5(sim,"initial.h5");
   const double tf = 10;
