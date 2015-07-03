@@ -9,4 +9,6 @@ vector<double> decapitate(const vector<double>& v);
 
 bool is_strictly_increasing(const vector<double>& v);
 
+vector<double> mid_array(const vector<double>& v);
+
 #endif // VECTOR_UTILS_HPP
