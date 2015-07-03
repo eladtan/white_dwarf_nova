@@ -40,28 +40,10 @@
 #include "circular_section.hpp"
 #include "lazy_extensive_updater.hpp"
 #include "monopole_self_gravity.hpp"
+#include "write_cycle.hpp"
 
 using namespace std;
 using namespace simulation2d;
-
-namespace {
-
-  class WriteCycle: public DiagnosticFunction
-  {
-  public:
-
-    WriteCycle(const string& fname):
-      fname_(fname) {}
-
-    void operator()(const hdsim& sim)
-    {
-      write_number(sim.getCycle(),fname_);
-    }
-
-  private:
-    const string fname_;
-  };
-}
 
 class SimData
 {
