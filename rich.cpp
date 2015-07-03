@@ -30,44 +30,12 @@
 #include "vector_io.hpp"
 #include "vector_utils.hpp"
 #include "get_composition_data.hpp"
+#include "interpolator.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  class Interpolator
-  {
-  public:
-
-    Interpolator(const vector<double>& x_list,
-		 const vector<double>& y_list):
-      x_list_(x_list), y_list_(y_list)
-    {
-      assert(is_strictly_increasing(x_list_));
-      assert(x_list_.size()==y_list_.size());
-    }
-
-    double operator()(double x) const
-    {
-      const double x_list_front = x_list_.front();
-      const double x_list_back = x_list_.back();
-      assert(x>x_list_front);
-      assert(x<x_list_back);       
-      //      assert(x>x_list_.front());
-      //      assert(x<x_list_.back());
-      for(size_t i=1;i<x_list_.size();++i){
-	if(x_list_.at(i)>x)
-	  return y_list_.at(i-1) + (y_list_.at(i)-y_list_.at(i-1))*
-	    (x-x_list_.at(i-1))/(x_list_.at(i)-x_list_.at(i-1));
-      }
-      throw "point outside bound";
-    }
-
-  private:
-    const vector<double> x_list_;
-    const vector<double> y_list_;
-  };
 
   vector<double> mid_array(const vector<double>& v)
   {
