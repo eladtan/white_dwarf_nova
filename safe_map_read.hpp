@@ -1,6 +1,8 @@
 #ifndef SAFE_MAP_READ_HPP
 #define SAFE_MAP_READ_HPP 1
 
+using std::map;
+
 template<class S, class T> const T& safe_map_read(const map<S,T>& m,
 						  const S& s)
 {

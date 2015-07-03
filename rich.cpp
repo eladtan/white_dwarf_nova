@@ -13,7 +13,6 @@
 #include "source/newtonian/two_dimensional/source_terms/SeveralSources.hpp"
 #include "source/misc/vector_initialiser.hpp"
 #include "source/newtonian/two_dimensional/simple_cfl.hpp"
-#include "source/newtonian/two_dimensional/simple_extensive_updater.hpp"
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include "source/newtonian/test_2d/main_loop_2d.hpp"
 #include "source/newtonian/test_2d/consecutive_snapshots.hpp"
@@ -39,42 +38,12 @@
 #include "lazy_cell_updater.hpp"
 #include "calc_init_cond.hpp"
 #include "circular_section.hpp"
+#include "lazy_extensive_updater.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  class LazyExtensiveUpdater: public ExtensiveUpdater
-  {
-  public:
-
-    LazyExtensiveUpdater(void) {}
-
-    void operator()
-    (const vector<Extensive>& fluxes,
-     const PhysicalGeometry& /*pg*/,
-     const Tessellation& tess,
-     const double dt,
-     const CacheData& cd,
-     const vector<ComputationalCell>& cells,
-     vector<Extensive>& extensive) const
-    {
-      const vector<Edge>& edge_list = tess.getAllEdges();
-      for(size_t i=0;i<edge_list.size();++i){
-	const Edge& edge = edge_list.at(i);
-	const Extensive delta = dt*cd.areas[i]*fluxes.at(i);
-	if(bracketed(0,edge.neighbors.first,tess.GetPointNo()) &&
-	   !safe_map_read
-	   (cells.at(static_cast<size_t>(edge.neighbors.first)).stickers,string("ghost")))
-	  extensive.at(static_cast<size_t>(edge.neighbors.first)) -= delta;
-	if(bracketed(0,edge.neighbors.second,tess.GetPointNo()) &&
-	   !safe_map_read
-	   (cells.at(static_cast<size_t>(edge.neighbors.second)).stickers,string("ghost")))
-	  extensive.at(static_cast<size_t>(edge.neighbors.second)) += delta;
-      }
-    }
-  };
 
   template<typename T> vector<T> polyfit_sc(const pair<vector<T>,vector<T> >& x_y, int deg)
   {
