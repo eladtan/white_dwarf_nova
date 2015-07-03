@@ -28,20 +28,12 @@
 #include "generate_atomic_properties.hpp"
 #include "safe_map_read.hpp"
 #include "vector_io.hpp"
+#include "vector_utils.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  vector<double> decapitate(const vector<double>& v)
-  {
-    assert(v.size()>0);
-    vector<double> res(v.size()-1);
-    for(size_t i=0;i<res.size();++i)
-      res.at(i) = v.at(i);
-    return res;
-  }
 
   map<string,vector<double> > get_composition_data(void)
   {
@@ -52,15 +44,6 @@ namespace {
 	it != atomic_properties.end(); ++it)
       res[it->first] = decapitate(load_txt(string("tracer_")+it->first+".txt"));
     return res;
-  }
-
-  bool is_strictly_increasing(const vector<double>& v)
-  {
-    for(size_t i=1;i<v.size();++i){
-      if(v.at(i)<=v.at(i-1))
-	return false;
-    }
-    return true;
   }
 
   class Interpolator
