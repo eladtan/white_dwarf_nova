@@ -33,19 +33,12 @@
 #include "interpolator.hpp"
 #include "initial_data.hpp"
 #include "create_pressure_reference.hpp"
+#include "rectangle_stretch.hpp"
 
 using namespace std;
 using namespace simulation2d;
 
 namespace {
-
-  pair<Vector2D, Vector2D> stretch(const pair<Vector2D,Vector2D>& boundaries,
-				   double ratio)
-  {
-    const Vector2D centre = 0.5*(boundaries.first + boundaries.second);
-    return pair<Vector2D,Vector2D>(centre+ratio*(boundaries.first-centre),
-				   centre+ratio*(boundaries.second-centre));
-  }
 
   bool is_in(const Vector2D& point,
 	     const pair<Vector2D,Vector2D>& boundaries)
@@ -81,7 +74,7 @@ namespace {
       for(double q=0;q<2*M_PI;q+=dq)
 	res.push_back(Vector2D(r*cos(q),r*sin(q)));
     }
-    res = rectangular_clip(res,stretch(boundaries,0.99));
+    res = rectangular_clip(res,rectangle_stretch(boundaries,0.99));
     ofstream f("mesh_points.txt");
     for(size_t i=0;i<res.size();++i)
       f << res.at(i).x << " " << res.at(i).y << endl;
