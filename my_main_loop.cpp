@@ -25,9 +25,16 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
     [new WriteCycle("cycle.txt")]
     ();
   MultipleDiagnostics diag(diag_list);
+  /*
   NuclearBurn manip(string("alpha_table"),
 		    string("ghost"),
 		    eos);
+  */
+  MultipleManipulation manip
+    (VectorInitialiser(new NuclearBurn(string("alpha_table"),
+				       string("ghost"),
+				       eos))
+     (new EquilibriumRetouch)());
     main_loop(sim,
 	    term_cond,
 	    &hdsim::TimeAdvance,
