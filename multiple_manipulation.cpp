@@ -10,7 +10,7 @@ void MultipleManipulation::operator()(hdsim& sim)
     (*manip_list_[i])(sim);
 }
 
-void MultipleManipulation::~MultipleManipulation(void)
+MultipleManipulation::~MultipleManipulation(void)
 {
   for(size_t i=0;i<manip_list_.size();++i)
     delete manip_list_[i];

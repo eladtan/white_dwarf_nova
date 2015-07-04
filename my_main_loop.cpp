@@ -6,6 +6,8 @@
 #include "write_cycle.hpp"
 #include "source/newtonian/test_2d/multiple_diagnostics.hpp"
 #include "nuclear_burn.hpp"
+#include "multiple_manipulation.hpp"
+#include "equilibrium_retouch.hpp"
 
 using namespace simulation2d;
 
@@ -31,7 +33,7 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
 		    eos);
   */
   MultipleManipulation manip
-    (VectorInitialiser(new NuclearBurn(string("alpha_table"),
+    (VectorInitialiser<Manipulate*>(new NuclearBurn(string("alpha_table"),
 				       string("ghost"),
 				       eos))
      (new EquilibriumRetouch)());

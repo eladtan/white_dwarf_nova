@@ -46,7 +46,6 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
     res.at(i).stickers["ghost"] = false;
     const double density = density_interpolator(radius);
     const double temperature = temperature_interpolator(radius);
-    const double velocity = 0;
     for(map<string,Interpolator*>::const_iterator it=
 	  tracer_intepolators.begin();
 	it!=tracer_intepolators.end();
