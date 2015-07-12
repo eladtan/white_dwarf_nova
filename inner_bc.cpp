@@ -102,6 +102,37 @@ namespace {
     res.Energy = 0;
     return res;
   }
+
+  Conserved regular_riemann
+  (const RiemannSolver& rs,
+   const Tessellation& tess,
+   const vector<Vector2D>& point_velocities,
+   const vector<ComputationalCell>& cells,
+   const EquationOfState& eos,
+   const Edge& edge)
+  {
+    const size_t left_index =
+      static_cast<size_t>(edge.neighbors.first);
+    const size_t right_index =
+      static_cast<size_t>(edge.neighbors.second);
+    const Primitive left =
+      convert_to_primitive(cells[left_index], eos);
+    const Primitive right =
+      convert_to_primitive(cells[right_index], eos);
+    const Vector2D p = Parallel(edge);
+    const Vector2D n =
+      tess.GetMeshPoint(edge.neighbors.second) -
+      tess.GetMeshPoint(edge.neighbors.first);
+    const double velocity = Projection
+      (tess.CalcFaceVelocity
+       (point_velocities.at(left_index),
+	point_velocities.at(right_index),
+	tess.GetCellCM(edge.neighbors.first),
+	tess.GetCellCM(edge.neighbors.second),
+	calc_centroid(edge)),n);
+    return rotate_solve_rotate_back
+      (rs,left,right,velocity,n,p);
+  }
 }
 
 const Conserved InnerBC::calcHydroFlux
@@ -163,21 +194,11 @@ const Conserved InnerBC::calcHydroFlux
        convert_to_primitive(left_cell,eos),
        Vector2D(0,0),
        true);
-  const Vector2D p = Parallel(edge);
-  const Vector2D n =
-    tess.GetMeshPoint(edge.neighbors.second) -
-    tess.GetMeshPoint(edge.neighbors.first);
-  const double velocity = Projection
-    (tess.CalcFaceVelocity
-     (point_velocities.at(left_index),
-      point_velocities.at(right_index),
-      tess.GetCellCM(edge.neighbors.first),
-      tess.GetCellCM(edge.neighbors.second),
-      calc_centroid(edge)),n);
-  const Primitive left =
-    convert_to_primitive(left_cell, eos);
-  const Primitive right =
-    convert_to_primitive(right_cell, eos);
-  return rotate_solve_rotate_back
-    (rs_,left,right,velocity,n,p);
+  return regular_riemann
+    (rs_,
+     tess,
+     point_velocities,
+     cells,
+     eos,
+     edge);
 }
