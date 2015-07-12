@@ -47,13 +47,13 @@ vector<Extensive> InnerBC::operator()
    const vector<Extensive>& /*extensives*/,
    const EquationOfState& eos,
    const double /*time*/,
-   const double /*dt*/) const
+   const double dt) const
 {
   vector<Extensive> res(tess.getAllEdges().size());
   for(size_t i=0;i<tess.getAllEdges().size();++i){
     const Conserved hydro_flux =
       calcHydroFlux(tess,point_velocities,
-		    cells, eos, i);
+		    cells, eos, i, dt*a_);
     res.at(i).mass = hydro_flux.Mass;
     res.at(i).momentum = hydro_flux.Momentum;
     res.at(i).energy = hydro_flux.Energy;
@@ -145,7 +145,8 @@ const Conserved InnerBC::calcHydroFlux
  const vector<Vector2D>& point_velocities,
  const vector<ComputationalCell>& cells,
  const EquationOfState& eos,
- const size_t i) const
+ const size_t i,
+ double support) const
 {
   const Edge& edge = tess.GetEdge(static_cast<int>(i));
   const pair<bool,bool> flags
@@ -188,7 +189,7 @@ const Conserved InnerBC::calcHydroFlux
        tess.GetMeshPoint(edge.neighbors.second),
        edge,
        convert_to_primitive(right_cell,eos),
-       Vector2D(0,0),
+       Vector2D(0,support),
        false);
   }
   if(safe_retrieve(right_cell.stickers,ghost_))
@@ -197,7 +198,7 @@ const Conserved InnerBC::calcHydroFlux
        tess.GetMeshPoint(edge.neighbors.first),
        edge,
        convert_to_primitive(left_cell,eos),
-       Vector2D(0,0),
+       Vector2D(0,support),
        true);
   return regular_riemann
     (rs_,

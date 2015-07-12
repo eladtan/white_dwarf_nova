@@ -33,7 +33,8 @@ private:
    const vector<Vector2D>& point_velocities,
    const vector<ComputationalCell>& cells,
    const EquationOfState& eos,
-   const size_t i) const;
+   const size_t i,
+   const double support) const;
 };
 
 #endif // INNER_BC_HPP
