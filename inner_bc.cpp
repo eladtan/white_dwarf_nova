@@ -123,21 +123,17 @@ const Conserved InnerBC::calcHydroFlux
 	eos),
        Vector2D(0,0),
        false);
-  if(!flags.second){
-    const size_t left_index =
-      static_cast<size_t>(edge.neighbors.first);
-    const ComputationalCell& left_cell = cells.at(left_index);
-    if(left_cell.stickers.find(ghost_)->second)
-      return Conserved();
-    const Primitive left = convert_to_primitive(left_cell, eos);
-    const Vector2D p = Parallel(edge);
-    const Primitive right = reflect(left, p);
-    const Vector2D n = remove_parallel_component
-      (edge.vertices.second -
-       tess.GetMeshPoint(edge.neighbors.first),p);
-    return rotate_solve_rotate_back
-      (rs_, left, right, 0, n, p);
-  }
+  if(!flags.second)
+    return support_riemann
+      (rs_,
+       tess.GetMeshPoint(edge.neighbors.first),
+       edge,
+       convert_to_primitive
+       (cells.at
+	(static_cast<size_t>(edge.neighbors.first)),
+	eos),
+       Vector2D(0,0),
+       true);
   const size_t left_index =
     static_cast<size_t>(edge.neighbors.first);
   const size_t right_index =
