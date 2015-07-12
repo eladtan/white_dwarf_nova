@@ -1,5 +1,6 @@
 #include "inner_bc.hpp"
 #include "source/newtonian/two_dimensional/simple_flux_calculator.hpp"
+#include "safe_retrieve.hpp"
 
 namespace {
   double calc_tracer_flux(const Edge& edge,
@@ -29,7 +30,10 @@ namespace {
 InnerBC::InnerBC(const RiemannSolver& rs,
 		 const string& ghost,
 		 const double radius):
-  rs_(rs), ghost_(ghost), radius_(radius) {}
+  rs_(rs), ghost_(ghost), radius_(radius)
+{
+  assert(radius_>0);
+}
 
 vector<Extensive> InnerBC::operator()
   (const Tessellation& tess,
@@ -140,9 +144,25 @@ const Conserved InnerBC::calcHydroFlux
     static_cast<size_t>(edge.neighbors.second);
   const ComputationalCell& left_cell = cells.at(left_index);
   const ComputationalCell& right_cell = cells.at(right_index);
-  if(left_cell.stickers.find(ghost_)->second &&
-     right_cell.stickers.find(ghost_)->second)
-    return Conserved();
+  if(safe_retrieve(left_cell.stickers,ghost_)){
+    if(safe_retrieve(right_cell.stickers,ghost_))
+      return Conserved();
+    return support_riemann
+      (rs_,
+       tess.GetMeshPoint(edge.neighbors.second),
+       edge,
+       convert_to_primitive(right_cell,eos),
+       Vector2D(0,0),
+       false);
+  }
+  if(safe_retrieve(right_cell.stickers,ghost_))
+    return support_riemann
+      (rs_,
+       tess.GetMeshPoint(edge.neighbors.first),
+       edge,
+       convert_to_primitive(left_cell,eos),
+       Vector2D(0,0),
+       true);
   const Vector2D p = Parallel(edge);
   const Vector2D n =
     tess.GetMeshPoint(edge.neighbors.second) -
@@ -154,24 +174,6 @@ const Conserved InnerBC::calcHydroFlux
       tess.GetCellCM(edge.neighbors.first),
       tess.GetCellCM(edge.neighbors.second),
       calc_centroid(edge)),n);
-  if(left_cell.stickers.find(ghost_)->second){
-    const Primitive right =
-      convert_to_primitive(right_cell, eos);
-    const Primitive left =
-      (abs(tess.GetMeshPoint(static_cast<int>(left_index)))>radius_) ?
-      right : reflect(right,p);
-    return rotate_solve_rotate_back
-      (rs_,left,right,velocity,n,p);
-  }
-  if(right_cell.stickers.find(ghost_)->second){
-    const Primitive left =
-      convert_to_primitive(left_cell, eos);
-    const Primitive right =
-      (abs(tess.GetMeshPoint(static_cast<int>(right_index)))>radius_) ?
-      left : reflect(left,p);
-    return rotate_solve_rotate_back
-      (rs_,left,right,velocity,n,p);
-  }
   const Primitive left =
     convert_to_primitive(left_cell, eos);
   const Primitive right =
