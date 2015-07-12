@@ -29,10 +29,15 @@ namespace {
 
 InnerBC::InnerBC(const RiemannSolver& rs,
 		 const string& ghost,
-		 const double radius):
-  rs_(rs), ghost_(ghost), radius_(radius)
+		 const double radius,
+		 const double acceleration):
+  rs_(rs),
+  ghost_(ghost),
+  radius_(radius),
+  a_(acceleration)
 {
   assert(radius_>0);
+  assert(a_>0);
 }
 
 vector<Extensive> InnerBC::operator()

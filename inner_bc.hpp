@@ -10,7 +10,8 @@ public:
 
   InnerBC(const RiemannSolver& rs,
 	  const string& ghost,
-	  const double radius);
+	  const double radius,
+	  const double acceleration);
 
   vector<Extensive> operator()
   (const Tessellation& tess,
@@ -25,6 +26,7 @@ private:
   const RiemannSolver& rs_;
   const string ghost_;
   const double radius_;
+  const double a_;
 
   const Conserved calcHydroFlux
   (const Tessellation& tess,

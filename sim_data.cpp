@@ -9,7 +9,7 @@ SimData::SimData(const InitialData& id, const Units& u):
   eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
   rs_(),
   point_motion_(),
-  gravity_acc_(u.gravitation_constant*1.816490e33*u.gram,
+  gravity_acc_(u.gravitation_constant*u.core_mass,
 	       0, Vector2D(0,0)),
   gravity_force_(gravity_acc_),
   msg_(linspace(id.radius_list.front(),id.radius_list.back(),100),
@@ -19,7 +19,9 @@ SimData::SimData(const InitialData& id, const Units& u):
   force_(VectorInitialiser<SourceTerm*>(&gravity_force_)
 	 (&geom_force_)(&msg_)()),
   tsf_(0.3),
-  fc_(rs_,string("ghost"),id.radius_mid.back()),
+  fc_(rs_,string("ghost"),id.radius_mid.back(),
+      u.gravitation_constant*u.core_mass/
+      pow(id.radius_list.back(),2)),
   eu_(),
   cu_(),
   sim_(tess_,

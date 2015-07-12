@@ -7,6 +7,7 @@ public:
 
   const double gram;
   const double gravitation_constant;
+  const double core_mass;
 
   Units(void);
 };
