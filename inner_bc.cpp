@@ -59,6 +59,47 @@ vector<Extensive> InnerBC::operator()
   return res;
 }
 
+namespace {
+
+  Primitive boost(const Primitive& origin,
+		  const Vector2D& v)
+  {
+    Primitive res = origin;
+    res.Velocity += v;
+    return res;
+  }
+  
+  Conserved support_riemann(const RiemannSolver& rs,
+			    const Vector2D& rmp,
+			    const Edge& edge,
+			    const Primitive& cell,
+			    const Vector2D& support,
+			    bool left_real)
+  {
+    const Vector2D& p = Parallel(edge);
+    Conserved res = left_real ?
+      rotate_solve_rotate_back
+      (rs,
+       cell,
+       boost(reflect(cell,p),support),
+       0,
+       remove_parallel_component
+       (edge.vertices.second-rmp,p),
+       p) :
+      rotate_solve_rotate_back
+      (rs,
+       boost(reflect(cell,p),support),
+       cell,
+       0,
+       remove_parallel_component
+       (rmp-edge.vertices.second,p),
+       p);
+    res.Mass = 0;
+    res.Energy = 0;
+    return res;
+  }
+}
+
 const Conserved InnerBC::calcHydroFlux
 (const Tessellation& tess,
  const vector<Vector2D>& point_velocities,
@@ -71,20 +112,17 @@ const Conserved InnerBC::calcHydroFlux
     (edge.neighbors.first>=0 && edge.neighbors.first<tess.GetPointNo(),
      edge.neighbors.second>=0 && edge.neighbors.second<tess.GetPointNo());
   assert(flags.first || flags.second);
-  if(!flags.first){
-    const size_t right_index = static_cast<size_t>(edge.neighbors.second);
-    const ComputationalCell& right_cell = cells.at(right_index);
-    if(right_cell.stickers.find(ghost_)->second)
-      return Conserved();
-    const Vector2D p = Parallel(edge);
-    const Primitive right = convert_to_primitive(right_cell, eos);
-    const Primitive left = reflect(right,p);
-    const Vector2D n = remove_parallel_component
-      (tess.GetMeshPoint(edge.neighbors.second)-
-       edge.vertices.first,p);
-    return rotate_solve_rotate_back
-      (rs_, left, right, 0, n, p);
-  }
+  if(!flags.first)
+    return support_riemann
+      (rs_,
+       tess.GetMeshPoint(edge.neighbors.second),
+       edge,
+       convert_to_primitive
+       (cells.at
+	(static_cast<size_t>(edge.neighbors.second)),
+	eos),
+       Vector2D(0,0),
+       false);
   if(!flags.second){
     const size_t left_index =
       static_cast<size_t>(edge.neighbors.first);
