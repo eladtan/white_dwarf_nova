@@ -1,6 +1,9 @@
 #include "sim_data.hpp"
+#include "calc_bottom_area.hpp"
 
-SimData::SimData(const InitialData& id, const Units& u):
+SimData::SimData(const InitialData& id,
+		 const Units& u,
+		 const CircularSection& domain):
   pg_(Vector2D(0,0), Vector2D(1,0)),
   outer_(Vector2D(-0.5*id.radius_mid.front(),0.9*id.radius_mid.front()),
 	 Vector2D(0.5*id.radius_mid.front(),1.2*id.radius_mid.back())),
@@ -14,23 +17,23 @@ SimData::SimData(const InitialData& id, const Units& u):
   gravity_force_(gravity_acc_),
   msg_(linspace(id.radius_list.front(),id.radius_list.back(),100),
        u.gravitation_constant,
-       pair<double,double>(M_PI*0.46,M_PI*0.54)),
+       domain.getAngles()),
   geom_force_(pg_.getAxis()),
   force_(VectorInitialiser<SourceTerm*>(&gravity_force_)
 	 (&geom_force_)(&msg_)()),
   tsf_(0.3),
   fc_(rs_,string("ghost"),id.radius_mid.back(),
       u.gravitation_constant*u.core_mass/
-      pow(id.radius_list.back(),2)),
+      pow(id.radius_list.back(),2),
+      calc_bottom_area(tess_,
+		       domain,
+		       pg_)),
   eu_(),
   cu_(),
   sim_(tess_,
        outer_,
        pg_,
-       calc_init_cond(tess_,eos_,id,CircularSection(id.radius_mid.front(),
-						    id.radius_mid.back(),
-						    0.46*M_PI,
-						    0.54*M_PI)),
+       calc_init_cond(tess_,eos_,id,domain),
        eos_,
        point_motion_,
        force_,

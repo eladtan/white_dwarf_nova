@@ -23,37 +23,64 @@ namespace {
       return hf.Mass*
 	cells.at(static_cast<size_t>(edge.neighbors.second)).tracers.find(name)->second;
     }
-    return 0;    
+    return 0; 
+  }
+
+  double calc_total_downward_momentum
+  (const Tessellation& tess,
+   const vector<ComputationalCell>& cell_list,
+   const vector<Extensive>& extensive_list)
+  {
+    double res = 0;
+    for(size_t i=0;i<extensive_list.size();++i){
+      const ComputationalCell& cell = cell_list[i];
+      if(!safe_retrieve(cell.stickers,string("ghost"))){
+	const Vector2D r = tess.GetCellCM(static_cast<int>(i));
+	const double radius = sqrt(ScalarProd(r,r));
+	res += ScalarProd(r,extensive_list[i].momentum)/radius;
+      }
+    }
+    return res;
   }
 }
 
 InnerBC::InnerBC(const RiemannSolver& rs,
 		 const string& ghost,
 		 const double radius,
-		 const double acceleration):
+		 const double acceleration,
+		 const double bottom_area):
   rs_(rs),
   ghost_(ghost),
   radius_(radius),
-  a_(acceleration)
+  a_(acceleration),
+  bottom_area_(bottom_area)
 {
   assert(radius_>0);
   assert(a_>0);
+  assert(bottom_area_>0);
 }
 
 vector<Extensive> InnerBC::operator()
   (const Tessellation& tess,
    const vector<Vector2D>& point_velocities,
    const vector<ComputationalCell>& cells,
-   const vector<Extensive>& /*extensives*/,
+   const vector<Extensive>& extensives,
    const EquationOfState& eos,
    const double /*time*/,
    const double dt) const
 {
+  const double tdm =
+    calc_total_downward_momentum(tess,
+				 cells,
+				 extensives);
   vector<Extensive> res(tess.getAllEdges().size());
   for(size_t i=0;i<tess.getAllEdges().size();++i){
     const Conserved hydro_flux =
       calcHydroFlux(tess,point_velocities,
-		    cells, eos, i, dt*a_);
+		    cells, eos, i,
+		    pair<bool,double>
+		    (tdm>0,
+		     tdm>0 ? tdm/dt/bottom_area_ : dt*a_));
     res.at(i).mass = hydro_flux.Mass;
     res.at(i).momentum = hydro_flux.Momentum;
     res.at(i).energy = hydro_flux.Energy;
@@ -108,6 +135,18 @@ namespace {
     return res;
   }
 
+  Conserved support_atlas
+  (const double rmf,
+   const Vector2D& r)
+  {
+    const double radius = sqrt(ScalarProd(r,r));
+    Conserved res;
+    res.Mass = 0;
+    res.Energy = 0;
+    res.Momentum = rmf*r/radius;
+    return res;
+  }
+
   Conserved regular_riemann
   (const RiemannSolver& rs,
    const Tessellation& tess,
@@ -138,6 +177,19 @@ namespace {
     return rotate_solve_rotate_back
       (rs,left,right,velocity,n,p);
   }
+
+  double calc_radius_sqr(const Vector2D& p)
+  {
+    return ScalarProd(p,p);
+  }
+
+  bool point_above_edge
+  (const Vector2D& p,
+   const Edge& edge)
+  {
+    return calc_radius_sqr(p)>calc_radius_sqr(edge.vertices.first) &&
+      calc_radius_sqr(p)>calc_radius_sqr(edge.vertices.second);
+  }
 }
 
 const Conserved InnerBC::calcHydroFlux
@@ -146,7 +198,7 @@ const Conserved InnerBC::calcHydroFlux
  const vector<ComputationalCell>& cells,
  const EquationOfState& eos,
  const size_t i,
- double support) const
+ const pair<bool,double>& support) const
 {
   const Edge& edge = tess.GetEdge(static_cast<int>(i));
   const pair<bool,bool> flags
@@ -184,22 +236,49 @@ const Conserved InnerBC::calcHydroFlux
   if(safe_retrieve(left_cell.stickers,ghost_)){
     if(safe_retrieve(right_cell.stickers,ghost_))
       return Conserved();
+    if(point_above_edge
+       (tess.GetMeshPoint(edge.neighbors.second),edge))
+      return support.first ?
+	support_atlas
+	(support.second,
+	 tess.GetMeshPoint(edge.neighbors.second)) :
+	support_riemann
+	(rs_,
+	 tess.GetMeshPoint(edge.neighbors.second),
+	 edge,
+	 convert_to_primitive(right_cell,eos),
+	 Vector2D(0,support.second),
+	 false);
     return support_riemann
       (rs_,
        tess.GetMeshPoint(edge.neighbors.second),
        edge,
        convert_to_primitive(right_cell,eos),
-       Vector2D(0,support),
+       Vector2D(0,0),
        false);
   }
-  if(safe_retrieve(right_cell.stickers,ghost_))
+  if(safe_retrieve(right_cell.stickers,ghost_)){
+    if(point_above_edge
+       (tess.GetMeshPoint(edge.neighbors.first),edge))
+      return support.first ?
+	support_atlas
+	(-support.second,
+	 tess.GetMeshPoint(edge.neighbors.first)) :
+	support_riemann
+	(rs_,
+	 tess.GetMeshPoint(edge.neighbors.first),
+	 edge,
+	 convert_to_primitive(left_cell,eos),
+	 Vector2D(0,support.second),
+	 true);
     return support_riemann
       (rs_,
        tess.GetMeshPoint(edge.neighbors.first),
        edge,
        convert_to_primitive(left_cell,eos),
-       Vector2D(0,support),
+       Vector2D(0,0),
        true);
+  }
   return regular_riemann
     (rs_,
      tess,

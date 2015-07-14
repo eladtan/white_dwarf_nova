@@ -11,7 +11,8 @@ public:
   InnerBC(const RiemannSolver& rs,
 	  const string& ghost,
 	  const double radius,
-	  const double acceleration);
+	  const double acceleration,
+	  const double bottom_area);
 
   vector<Extensive> operator()
   (const Tessellation& tess,
@@ -27,6 +28,7 @@ private:
   const string ghost_;
   const double radius_;
   const double a_;
+  const double bottom_area_;
 
   const Conserved calcHydroFlux
   (const Tessellation& tess,
@@ -34,7 +36,7 @@ private:
    const vector<ComputationalCell>& cells,
    const EquationOfState& eos,
    const size_t i,
-   const double support) const;
+   const pair<bool,double>& support) const;
 };
 
 #endif // INNER_BC_HPP

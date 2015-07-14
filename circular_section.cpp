@@ -20,3 +20,8 @@ bool CircularSection::operator()(const Vector2D& r) const
 	  angle_left_<angle &&
 	  angle_right_>angle);
 }
+
+pair<double,double> CircularSection::getAngles(void) const
+{
+  return pair<double,double>(angle_left_, angle_right_);
+}

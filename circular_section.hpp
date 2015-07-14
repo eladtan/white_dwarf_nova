@@ -3,6 +3,8 @@
 
 #include "source/tessellation/shape_2d.hpp"
 
+using std::pair;
+
 class CircularSection: public Shape2D
 {
 public:
@@ -13,6 +15,8 @@ public:
 		  const double angle_right);
 
   bool operator()(const Vector2D& r) const;
+
+  pair<double,double> getAngles(void) const;
 
 private:
   const double radius_in_;

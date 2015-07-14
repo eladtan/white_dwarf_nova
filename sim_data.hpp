@@ -26,7 +26,9 @@ class SimData
 {
 public:
 
-  SimData(const InitialData& id, const Units& u);
+  SimData(const InitialData& id,
+	  const Units& u,
+	  const CircularSection& domain);
 
   hdsim& getSim(void);
 
