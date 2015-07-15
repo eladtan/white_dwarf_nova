@@ -37,7 +37,7 @@ namespace {
       if(!safe_retrieve(cell.stickers,string("ghost"))){
 	const Vector2D r = tess.GetCellCM(static_cast<int>(i));
 	const double radius = sqrt(ScalarProd(r,r));
-	res += ScalarProd(r,extensive_list[i].momentum)/radius;
+	res -= ScalarProd(r,extensive_list[i].momentum)/radius;
       }
     }
     return res;
