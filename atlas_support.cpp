@@ -52,12 +52,16 @@ namespace {
 	static_cast<size_t>(edge.neighbors.second);
       if(safe_retrieve(cells.at(left_index).stickers,
 		       string("ghost")) &&
+	 !safe_retrieve(cells.at(right_index).stickers,
+			string("ghost")) &&
 	 point_above_edge(tess.GetCellCM(edge.neighbors.second),
 			  edge))
 	res.push_back(right_index);
       else if
 	(safe_retrieve(cells.at(right_index).stickers,
 		       string("ghost")) &&
+	 !safe_retrieve(cells.at(left_index).stickers,
+			string("ghost")) &&
 	 point_above_edge(tess.GetCellCM(edge.neighbors.first),
 			  edge))
 	res.push_back(left_index);
@@ -73,7 +77,12 @@ void AtlasSupport::operator()(hdsim& sim)
   const vector<size_t> index_list = 
     get_lower_layer_indices(tess,cell_list);
   vector<Extensive>& extensive_list = sim.getAllExtensives();
-  for(size_t i=0;i<index_list.size();++i)
-    extensive_list[index_list[i]].momentum = Vector2D(0,0);
+  for(size_t i=0;i<index_list.size();++i){
+    const Vector2D r = tess.GetMeshPoint
+      (static_cast<int>(index_list[i]));
+    extensive_list[index_list[i]].momentum = 
+      0*abs(extensive_list[index_list[i]].momentum)*
+      r/abs(r);
+  }
   sim.recalculatePrimitives();
 }

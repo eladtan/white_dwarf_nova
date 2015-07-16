@@ -6,6 +6,7 @@
 #include "write_cycle.hpp"
 #include "source/newtonian/test_2d/multiple_diagnostics.hpp"
 #include "nuclear_burn.hpp"
+#include "atlas_support.hpp"
 
 using namespace simulation2d;
 
@@ -14,7 +15,7 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
   write_snapshot_to_hdf5(sim,"initial.h5",
 			 vector<DiagnosticAppendix*>
 			 (1,new TemperatureAppendix(eos)));
-  const double tf = 10;
+  const double tf = 0.1;
   SafeTimeTermination term_cond(tf, 1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
     [new ConsecutiveSnapshots(new ConstantTimeInterval(tf/1000),
@@ -25,9 +26,12 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
     [new WriteCycle("cycle.txt")]
     ();
   MultipleDiagnostics diag(diag_list);
+  /*
   NuclearBurn manip(string("alpha_table"),
 		    string("ghost"),
 		    eos);
+  */
+  AtlasSupport manip;
     main_loop(sim,
 	    term_cond,
 	    &hdsim::TimeAdvance,
