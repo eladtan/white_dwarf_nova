@@ -1,6 +1,7 @@
 #include "my_main_loop.hpp"
 #include "temperature_appendix.hpp"
 #include "volume_appendix.hpp"
+#include "energy_appendix.hpp"
 #include "source/newtonian/test_2d/main_loop_2d.hpp"
 #include "source/misc/vector_initialiser.hpp"
 #include "source/newtonian/test_2d/consecutive_snapshots.hpp"
@@ -24,11 +25,8 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
       new Rubric("snapshot_",".h5"),
       VectorInitialiser<DiagnosticAppendix*>
       (new TemperatureAppendix(eos))
+      (new EnergyAppendix(eos))
       (new VolumeAppendix())())]
-      /*
-      vector<DiagnosticAppendix*>
-      (1,new TemperatureAppendix(eos)))]
-      */
     [new WriteTime("time.txt")]
     [new WriteCycle("cycle.txt")]
     ();
