@@ -1,5 +1,6 @@
 #include "my_main_loop.hpp"
 #include "temperature_appendix.hpp"
+#include "volume_appendix.hpp"
 #include "source/newtonian/test_2d/main_loop_2d.hpp"
 #include "source/misc/vector_initialiser.hpp"
 #include "source/newtonian/test_2d/consecutive_snapshots.hpp"
@@ -18,10 +19,16 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
   const double tf = 0.1;
   SafeTimeTermination term_cond(tf, 1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
-    [new ConsecutiveSnapshots(new ConstantTimeInterval(tf/1000),
-			      new Rubric("snapshot_",".h5"),
-			      vector<DiagnosticAppendix*>
-			      (1,new TemperatureAppendix(eos)))]
+    [new ConsecutiveSnapshots
+     (new ConstantTimeInterval(tf/1000),
+      new Rubric("snapshot_",".h5"),
+      VectorInitialiser<DiagnosticAppendix*>
+      (new TemperatureAppendix(eos))
+      (new VolumeAppendix())())]
+      /*
+      vector<DiagnosticAppendix*>
+      (1,new TemperatureAppendix(eos)))]
+      */
     [new WriteTime("time.txt")]
     [new WriteCycle("cycle.txt")]
     ();
