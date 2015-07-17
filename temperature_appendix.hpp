@@ -1,3 +1,6 @@
+#ifndef TEMPERATURE_APPENDIX_HPP
+#define TEMPERATURE_APPENDIX_HPP 1
+
 #include "source/newtonian/two_dimensional/hdf5_diagnostics.hpp"
 #include "fermi_table.hpp"
 #include "safe_retrieve.hpp"
@@ -15,3 +18,5 @@ public:
 private:
   const FermiTable& eos_;
 };
+
+#endif // TEMPERATURE_APPENDIX_HPP
