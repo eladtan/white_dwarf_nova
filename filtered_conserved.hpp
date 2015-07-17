@@ -6,7 +6,7 @@
 
 using std::string;
 
-class FilteredConserved
+class FilteredConserved: public DiagnosticFunction
 {
 public:
 

@@ -9,6 +9,7 @@
 #include "source/newtonian/test_2d/multiple_diagnostics.hpp"
 #include "nuclear_burn.hpp"
 #include "atlas_support.hpp"
+#include "filtered_conserved.hpp"
 
 using namespace simulation2d;
 
@@ -29,6 +30,7 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
       (new VolumeAppendix())())]
     [new WriteTime("time.txt")]
     [new WriteCycle("cycle.txt")]
+    [new FilteredConserved("total_conserved.txt")]
     ();
   MultipleDiagnostics diag(diag_list);
   /*
