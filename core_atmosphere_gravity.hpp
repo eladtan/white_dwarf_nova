@@ -55,6 +55,14 @@ public:
    const vector<Vector2D>& point_velocities,
    const double time) const;
 
+  double getCoreMass(void) const;
+
+  const vector<double>& getSampleRadii(void) const;
+
+  double getSection2Shell(void) const;
+
+  double getGravitationConstant(void) const;
+
 private:
    const double core_mass_;
    const vector<double> sample_radii_;

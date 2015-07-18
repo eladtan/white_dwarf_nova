@@ -131,3 +131,24 @@ vector<Extensive> CoreAtmosphereGravity::operator()
   }
   return res;
 }
+
+double CoreAtmosphereGravity::getCoreMass(void) const
+{
+  return core_mass_;
+}
+
+const vector<double>& CoreAtmosphereGravity::getSampleRadii(void) const
+{
+  return sample_radii_;
+}
+
+double CoreAtmosphereGravity::getSection2Shell(void) const
+{
+  return section2shell_;
+}
+
+double CoreAtmosphereGravity::getGravitationConstant(void) const
+{
+  return gravitation_constant_;
+}
+  

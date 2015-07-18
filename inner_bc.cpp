@@ -47,11 +47,32 @@ namespace {
 InnerBC::InnerBC(const RiemannSolver& rs,
 		 const string& ghost,
 		 const double acceleration,
-		 const double bottom_area):
+		 const double bottom_area,
+		 const CoreAtmosphereGravity& cag):
   rs_(rs),
   ghost_(ghost),
   a_(acceleration),
-  bottom_area_(bottom_area) {}
+  bottom_area_(bottom_area),
+  cag_(cag) {}
+
+namespace {
+  const vector<pair<double,double> > calc_radius_mass_list
+  (const Tessellation& tess,
+   const vector<ComputationalCell>& cell_list,
+   const vector<Extensive>& extensive_live)
+  {
+    vector<pair<double,double> > res;
+    for(size_t i=0;i<cell_list.size();++i){
+      if(!safe_retrieve(cell_list[i].stickers,
+			string("ghost")))
+	res.push_back
+	  (pair<double,double>
+	   (abs(tess.GetCellCM(static_cast<int>(i))),
+	    extensive_live[i].mass));
+    }
+    return res;
+  }
+}
 
 vector<Extensive> InnerBC::operator()
   (const Tessellation& tess,
@@ -66,6 +87,15 @@ vector<Extensive> InnerBC::operator()
     calc_total_downward_momentum(tess,
 				 cells,
 				 extensives);
+  const CoreAtmosphereGravity::EnclosedMassCalculator emc
+    (cag_.getCoreMass(),
+     calc_radius_mass_list(tess,
+			   cells,
+			   extensives),
+     cag_.getSampleRadii(),
+     cag_.getSection2Shell());
+  const CoreAtmosphereGravity::AccelerationCalculator ac
+    (cag_.getGravitationConstant(), emc);
   vector<Extensive> res(tess.getAllEdges().size());
   for(size_t i=0;i<tess.getAllEdges().size();++i){
     const Conserved hydro_flux =
@@ -73,7 +103,8 @@ vector<Extensive> InnerBC::operator()
 		    cells, eos, i,
 		    pair<bool,double>
 		    (tdm>0,
-		     tdm>0 ? tdm/dt/bottom_area_ : dt*a_));
+		     tdm>0 ? tdm/dt/bottom_area_ : dt*a_),
+		    ac);
     res.at(i).mass = hydro_flux.Mass;
     res.at(i).momentum = hydro_flux.Momentum;
     res.at(i).energy = hydro_flux.Energy;
@@ -140,22 +171,64 @@ namespace {
     return res;
   }
 
-  Conserved regular_riemann
+  Primitive gravinterpolate
+  (const ComputationalCell& origin,
+   const Vector2D& cm,
+   const Vector2D& centroid,
+   const Vector2D& acc,
+   const EquationOfState& eos)
+  {
+    const double energy =
+      eos.dp2e(origin.density,
+	       origin.pressure,
+	       origin.tracers);
+    const double sound_speed =
+      eos.dp2c(origin.density,
+	       origin.pressure,
+	       origin.tracers);
+    return Primitive
+      (origin.density,
+       origin.pressure + origin.density*ScalarProd(acc,centroid-cm),
+       origin.velocity,
+       energy,
+       sound_speed);
+  }
+
+  Conserved bulk_riemann
   (const RiemannSolver& rs,
    const Tessellation& tess,
    const vector<Vector2D>& point_velocities,
    const vector<ComputationalCell>& cells,
    const EquationOfState& eos,
-   const Edge& edge)
+   const Edge& edge,
+   const CoreAtmosphereGravity::AccelerationCalculator& ac)
   {
+    const Vector2D left_pos =
+      tess.GetCellCM(edge.neighbors.first);
+    const Vector2D right_pos =
+      tess.GetCellCM(edge.neighbors.second);
+    const Vector2D left_acc = ac(left_pos);
+    const Vector2D right_acc = ac(right_pos);
+    const Vector2D centroid =
+      0.5*(edge.vertices.first+edge.vertices.second);
     const size_t left_index =
       static_cast<size_t>(edge.neighbors.first);
     const size_t right_index =
       static_cast<size_t>(edge.neighbors.second);
     const Primitive left =
-      convert_to_primitive(cells[left_index], eos);
+      gravinterpolate
+      (cells[left_index],
+       left_pos,
+       centroid,
+       left_acc,
+       eos);
     const Primitive right =
-      convert_to_primitive(cells[right_index], eos);
+      gravinterpolate
+      (cells[right_index],
+       right_pos,
+       centroid,
+       right_acc,
+       eos);
     const Vector2D p = Parallel(edge);
     const Vector2D n =
       tess.GetMeshPoint(edge.neighbors.second) -
@@ -191,7 +264,8 @@ const Conserved InnerBC::calcHydroFlux
  const vector<ComputationalCell>& cells,
  const EquationOfState& eos,
  const size_t i,
- const pair<bool,double>& support) const
+ const pair<bool,double>& support,
+ const CoreAtmosphereGravity::AccelerationCalculator& ac) const
 {
   const Edge& edge = tess.GetEdge(static_cast<int>(i));
   const pair<bool,bool> flags
@@ -272,11 +346,12 @@ const Conserved InnerBC::calcHydroFlux
        Vector2D(0,0),
        true);
   }
-  return regular_riemann
+  return bulk_riemann
     (rs_,
      tess,
      point_velocities,
      cells,
      eos,
-     edge);
+     edge,
+     ac);
 }
