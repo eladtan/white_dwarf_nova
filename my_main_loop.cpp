@@ -10,6 +10,7 @@
 #include "nuclear_burn.hpp"
 #include "atlas_support.hpp"
 #include "filtered_conserved.hpp"
+#include "multiple_manipulation.hpp"
 
 using namespace simulation2d;
 
@@ -38,7 +39,16 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
 		    string("ghost"),
 		    eos);
   */
+  /*
   AtlasSupport manip;
+  */
+  MultipleManipulation manip
+    (VectorInitialiser<Manipulate*>
+     (new AtlasSupport())
+     (new NuclearBurn(string("alpha_table"),
+		      string("ghost"),
+		      eos))
+     ());
     main_loop(sim,
 	    term_cond,
 	    &hdsim::TimeAdvance,
