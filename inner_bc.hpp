@@ -10,7 +10,6 @@ public:
 
   InnerBC(const RiemannSolver& rs,
 	  const string& ghost,
-	  const double radius,
 	  const double acceleration,
 	  const double bottom_area);
 
@@ -26,7 +25,6 @@ public:
 private:
   const RiemannSolver& rs_;
   const string ghost_;
-  const double radius_;
   const double a_;
   const double bottom_area_;
 

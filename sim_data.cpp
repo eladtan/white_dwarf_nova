@@ -23,7 +23,7 @@ SimData::SimData(const InitialData& id,
 	 (&geom_force_)
 	 ()),
   tsf_(0.3),
-  fc_(rs_,string("ghost"),id.radius_mid.back(),
+  fc_(rs_,string("ghost"),
       u.gravitation_constant*u.core_mass/
       pow(id.radius_list.back(),2),
       calc_bottom_area(tess_,

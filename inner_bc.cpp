@@ -46,19 +46,12 @@ namespace {
 
 InnerBC::InnerBC(const RiemannSolver& rs,
 		 const string& ghost,
-		 const double radius,
 		 const double acceleration,
 		 const double bottom_area):
   rs_(rs),
   ghost_(ghost),
-  radius_(radius),
   a_(acceleration),
-  bottom_area_(bottom_area)
-{
-  assert(radius_>0);
-  assert(a_>0);
-  assert(bottom_area_>0);
-}
+  bottom_area_(bottom_area) {}
 
 vector<Extensive> InnerBC::operator()
   (const Tessellation& tess,
