@@ -17,8 +17,9 @@ namespace {
     return res;
   }
 
-    vector<double> calc_mass_in_shells(const vector<pair<double,double> >& mass_radius_list,
-				     const vector<double>& sample_points)
+  vector<double> calc_mass_in_shells
+  (const vector<pair<double,double> >& mass_radius_list,
+   const vector<double>& sample_points)
   {
     vector<double> res(sample_points.size(),0);
     for(vector<pair<double,double> >::const_iterator it=
@@ -95,7 +96,7 @@ CoreAtmosphereGravity::CoreAtmosphereGravity
   sample_radii_(sample_radii),
   gravitation_constant_(gravitation_constant),
   section2shell_
-  (2./cos(sector_angles.first)-cos(sector_angles.second)) {}
+  (2./(cos(sector_angles.first)-cos(sector_angles.second))) {}
 
 vector<Extensive> CoreAtmosphereGravity::operator()
   (const Tessellation& tess,
