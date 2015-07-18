@@ -57,7 +57,7 @@ public:
 
 private:
    const double core_mass_;
-   const vector<double>& sample_radii_;
+   const vector<double> sample_radii_;
    const double gravitation_constant_;
    const double section2shell_;
 };

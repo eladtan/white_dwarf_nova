@@ -21,6 +21,7 @@
 #include "source/misc/vector_initialiser.hpp"
 #include "circular_section.hpp"
 #include "calc_init_cond.hpp"
+#include "core_atmosphere_gravity.hpp"
 
 class SimData
 {
@@ -41,9 +42,7 @@ private:
   const FermiTable eos_;
   const Hllc rs_;
   Eulerian point_motion_;
-  CenterGravity gravity_acc_;
-  ConservativeForce gravity_force_;
-  MonopoleSelfGravity msg_;
+  CoreAtmosphereGravity cag_;
   CylindricalComplementary geom_force_;
   SeveralSources force_;
   const SimpleCFL tsf_;

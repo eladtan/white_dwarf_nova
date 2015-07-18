@@ -12,15 +12,16 @@ SimData::SimData(const InitialData& id,
   eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
   rs_(),
   point_motion_(),
-  gravity_acc_(u.gravitation_constant*u.core_mass,
-	       0, Vector2D(0,0)),
-  gravity_force_(gravity_acc_),
-  msg_(linspace(id.radius_list.front(),id.radius_list.back(),100),
-       u.gravitation_constant,
-       domain.getAngles()),
+  cag_
+  (u.core_mass,
+   linspace(id.radius_list.front(),id.radius_list.back(),100),
+   u.gravitation_constant,
+   domain.getAngles()),
   geom_force_(pg_.getAxis()),
-  force_(VectorInitialiser<SourceTerm*>(&gravity_force_)
-	 (&geom_force_)(&msg_)()),
+  force_(VectorInitialiser<SourceTerm*>
+	 (&cag_)
+	 (&geom_force_)
+	 ()),
   tsf_(0.3),
   fc_(rs_,string("ghost"),id.radius_mid.back(),
       u.gravitation_constant*u.core_mass/
