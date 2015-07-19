@@ -10,7 +10,7 @@ def main():
 
     p = PushBullet(access_token)
 
-    mp4_list = glob.glob('*.mp4')
+    mp4_list = glob.glob('*.webm')
     if len(mp4_list)>0:
         for fname in mp4_list:
             p.push_file(open(fname,'rb'))
