@@ -22,6 +22,7 @@
 #include "circular_section.hpp"
 #include "calc_init_cond.hpp"
 #include "core_atmosphere_gravity.hpp"
+#include "zero_flux.hpp"
 
 class SimData
 {
@@ -46,7 +47,7 @@ private:
   CylindricalComplementary geom_force_;
   SeveralSources force_;
   const SimpleCFL tsf_;
-  const InnerBC fc_;
+  const ZeroFlux fc_;
   const LazyExtensiveUpdater eu_;
   const LazyCellUpdater cu_;
   hdsim sim_;
