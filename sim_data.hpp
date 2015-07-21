@@ -15,7 +15,7 @@
 #include "source/newtonian/two_dimensional/source_terms/SeveralSources.hpp"
 #include "inner_bc.hpp"
 #include "lazy_extensive_updater.hpp"
-#include "lazy_cell_updater.hpp"
+#include "no_cell_update.hpp"
 #include "create_grid.hpp"
 #include "generate_atomic_properties.hpp"
 #include "source/misc/vector_initialiser.hpp"
@@ -49,7 +49,7 @@ private:
   const SimpleCFL tsf_;
   const ZeroFlux fc_;
   const LazyExtensiveUpdater eu_;
-  const LazyCellUpdater cu_;
+  const NoCellUpdate cu_;
   hdsim sim_;
 };
 
