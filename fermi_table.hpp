@@ -50,7 +50,9 @@ public:
     \param aap First argument is the average weight number, and second is atomic number
     \return Energy
    */
-  double dt2e(double density, double temperature, std::pair<double,double> aap) const;
+  double dtaz2e(double density, double temperature, std::pair<double,double> aap) const;
+
+  double dt2e(double density, double temperature, const std::map<string,double>& tracers) const;
 
   /*! \brief Calculates the temperature
     \param density Density

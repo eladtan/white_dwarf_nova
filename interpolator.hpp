@@ -12,7 +12,11 @@ public:
   Interpolator(const vector<double>& x_list,
 	       const vector<double>& y_list);
 
-  double operator()(double x) const;
+  double operator()(double x, bool t=true) const;
+
+  double flat(double x) const; // piecewise step function
+
+  double linear(double x) const;
 
 private:
   const vector<double> x_list_;

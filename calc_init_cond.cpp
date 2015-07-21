@@ -51,7 +51,7 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
 	  tracer_intepolators.begin();
 	it!=tracer_intepolators.end();
 	++it)
-      res.at(i).tracers[it->first] = (*(it->second))(radius);
+      res.at(i).tracers[it->first] = (*(it->second))(radius,false);
     const double pressure = eos.dt2p(density, temperature, res.at(i).tracers);
     res.at(i).density = density;
     res.at(i).pressure = pressure;

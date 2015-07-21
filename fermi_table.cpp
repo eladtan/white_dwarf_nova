@@ -134,8 +134,13 @@ double FermiTable::dp2t(double density, double pressure, const map<string,double
   return dpaz2t(density,pressure,calcAverageAtomicProperties(tracers));
 }
 
-double FermiTable::dt2e(double density, double temperature,
-			std::pair<double,double> aap) const
+double FermiTable::dt2e(double density, double temperature, const map<string,double>& tracers) const
+{
+  return dtaz2e(density,temperature,calcAverageAtomicProperties(tracers));
+}
+
+double FermiTable::dtaz2e(double density, double temperature,
+			  std::pair<double,double> aap) const
 {
   return calcSingleThermoVar(std::pair<double,double ThermodynamicVariables::*>
 			     (density,&ThermodynamicVariables::density),

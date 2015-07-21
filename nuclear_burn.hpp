@@ -18,6 +18,11 @@ public:
 	      const FermiTable& eos);
 
   void operator()(hdsim& sim);
+
+  double calcEnergyDepositionRate 
+  (double density,
+   double temperature,
+   const map<string,double>& tracers) const;
   
 private:
 

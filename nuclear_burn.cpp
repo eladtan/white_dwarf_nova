@@ -142,3 +142,20 @@ void NuclearBurn::operator()(hdsim& sim)
   }
   sim.recalculateExtensives();
 }
+
+double NuclearBurn::calcEnergyDepositionRate 
+(double density,
+ double temperature,
+ const map<string,double>& tracers) const
+{
+  const double energy = eos_.dt2e
+    (density,
+     temperature,
+     tracers);
+  return burn_step_wrapper
+    (density,energy,temperature,
+     serialize_tracers(tracers,
+		       isotope_list_),
+     eos_.calcAverageAtomicProperties(tracers),
+     1e-6).first;
+}
