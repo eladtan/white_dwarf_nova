@@ -16,13 +16,16 @@ def plot_single(in_file, zfunc, zname, out_file):
         vert_idx_list = numpy.concatenate(([0],
                                            numpy.cumsum(f['Number of vertices in cell'])))
         verts = []
+        x_verts = numpy.array(f['x position of vertices'])
+        y_verts = numpy.array(f['y position of vertices'])
+        ghost_list = numpy.array(f['ghost'])
         for i in range(len(f['density'])):
-            if f['ghost'][i]<0.5:
+            if ghost_list[i]<0.5:
                 lowbound = int(vert_idx_list[i])
                 upbound = int(vert_idx_list[i+1])
                 verts.append([[x,y] for x,y
-                              in zip(f['x position of vertices'][lowbound:upbound],
-                                     f['y position of vertices'][lowbound:upbound])])
+                              in zip(x_verts[lowbound:upbound],
+                                     y_verts[lowbound:upbound])])
         coll = PolyCollection(verts, 
                               array=zfunc(f),
                               cmap = mpl.cm.jet,
@@ -38,6 +41,9 @@ def plot_single(in_file, zfunc, zname, out_file):
             plt.show()
         else:
             plt.savefig(out_file)
+        plt.clf()
+        plt.cla()
+        plt.close()
 
 def plot_all(zfunc, zname):
 
