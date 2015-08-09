@@ -47,7 +47,8 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
      (new AtlasSupport())
      (new NuclearBurn(string("alpha_table"),
 		      string("ghost"),
-		      eos))
+		      eos,
+		      string("burn_energy_history.txt")))
      ());
     main_loop(sim,
 	    term_cond,

@@ -94,7 +94,8 @@ namespace {
 NuclearBurn::NuclearBurn
 (const string& rfile,
  const string& ignore_label,
- const FermiTable& eos):
+ const FermiTable& eos,
+ const string& ehf):
   t_prev_(0),
   ignore_label_(ignore_label),
   eos_(eos),
@@ -110,7 +111,9 @@ NuclearBurn::NuclearBurn
 		("Ti44")
 		("Cr48")
 		("Fe52")
-		("Ni56")())
+		("Ni56")()),
+  energy_history_fname_(ehf),
+  energy_history_()
 {
   initnet_(rfile.c_str());
 }
@@ -119,6 +122,7 @@ void NuclearBurn::operator()(hdsim& sim)
 {
   const double dt = sim.getTime() - t_prev_;
   t_prev_ = sim.getTime();
+  double total = 0;
   vector<ComputationalCell>& cells = sim.getAllCells();
   for(size_t i=0;i<cells.size();++i){
     ComputationalCell& cell = cells[i];
@@ -136,9 +140,21 @@ void NuclearBurn::operator()(hdsim& sim)
 					  isotope_list_),
 			eos_.calcAverageAtomicProperties(cell.tracers),
 			dt);
+    total += dt*qrec_tracers.first;
     const double new_energy = energy + dt*qrec_tracers.first;
     cell.tracers = reassemble_tracers(qrec_tracers.second,isotope_list_);
     cell.pressure = eos_.de2p(cell.density, new_energy, cell.tracers);
   }
   sim.recalculateExtensives();
+  energy_history_.push_back
+    (pair<double,double>(sim.getTime(),total));
+}
+
+NuclearBurn::~NuclearBurn(void)
+{
+  std::ofstream f(energy_history_fname_.c_str());
+  for(size_t i=0;i<energy_history_.size();++i)
+    f << energy_history_[i].first << " "
+      << energy_history_[i].second << std::endl;
+  f.close();
 }

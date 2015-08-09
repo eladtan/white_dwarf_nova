@@ -15,9 +15,12 @@ class NuclearBurn: public Manipulate
 public:
   NuclearBurn(const string& rfile,
 	      const string& ignore_label,
-	      const FermiTable& eos);
+	      const FermiTable& eos,
+	      const string& ehf);
 
   void operator()(hdsim& sim);
+
+  ~NuclearBurn(void);
   
 private:
 
@@ -25,6 +28,8 @@ private:
   const string ignore_label_;
   const FermiTable& eos_;
   const vector<string> isotope_list_;
+  const string energy_history_fname_;
+  mutable vector<pair<double, double> > energy_history_;
 };
 
 #endif // NUCLEAR_BURN_HPP
