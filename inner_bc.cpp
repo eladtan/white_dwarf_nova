@@ -129,6 +129,32 @@ namespace {
     res.Velocity += v;
     return res;
   }
+
+  Conserved free_flow(const RiemannSolver& rs,
+			    const Vector2D& rmp,
+			    const Edge& edge,
+			    const Primitive& cell,
+			    bool left_real)
+  {
+    const Vector2D& p = Parallel(edge);
+    return left_real ?
+      rotate_solve_rotate_back
+      (rs,
+       cell,
+       cell,
+       0,
+       remove_parallel_component
+       (edge.vertices.second-rmp,p),
+       p) :
+      rotate_solve_rotate_back
+      (rs,
+       cell,
+       cell,
+       0,
+       remove_parallel_component
+       (rmp-edge.vertices.second,p),
+       p);
+  }
   
   Conserved support_riemann(const RiemannSolver& rs,
 			    const Vector2D& rmp,
@@ -157,18 +183,6 @@ namespace {
        p);
     res.Mass = 0;
     res.Energy = 0;
-    return res;
-  }
-
-  Conserved support_atlas
-  (const double rmf,
-   const Vector2D& r)
-  {
-    const double radius = sqrt(ScalarProd(r,r));
-    Conserved res;
-    res.Mass = 0;
-    res.Energy = 0;
-    res.Momentum = rmf*r/radius;
     return res;
   }
 
@@ -250,12 +264,12 @@ namespace {
     return ScalarProd(p,p);
   }
 
-  bool point_above_edge
+  bool point_below_edge
   (const Vector2D& p,
    const Edge& edge)
   {
-    return calc_radius_sqr(p)>calc_radius_sqr(edge.vertices.first) &&
-      calc_radius_sqr(p)>calc_radius_sqr(edge.vertices.second);
+    return calc_radius_sqr(p)<calc_radius_sqr(edge.vertices.first) &&
+      calc_radius_sqr(p)<calc_radius_sqr(edge.vertices.second);
   }
 }
 
@@ -304,20 +318,15 @@ const Conserved InnerBC::calcHydroFlux
   if(safe_retrieve(left_cell.stickers,ghost_)){
     if(safe_retrieve(right_cell.stickers,ghost_))
       return Conserved();
-    if(point_above_edge
-       (tess.GetMeshPoint(edge.neighbors.second),edge))
-      return support.first ?
-	support_atlas
-	(support.second,
-	 tess.GetMeshPoint(edge.neighbors.second)) :
-	support_riemann
-	(rs_,
-	 tess.GetMeshPoint(edge.neighbors.second),
-	 edge,
-	 convert_to_primitive(right_cell,eos),
-	 Vector2D(0,support.second),
-	 false);
-    return support_riemann
+    return point_below_edge
+      (tess.GetMeshPoint(edge.neighbors.second),edge) ?
+      free_flow
+      (rs_,
+       tess.GetMeshPoint(edge.neighbors.second),
+       edge,
+       convert_to_primitive(right_cell,eos),
+       false) :
+      support_riemann
       (rs_,
        tess.GetMeshPoint(edge.neighbors.second),
        edge,
@@ -326,25 +335,20 @@ const Conserved InnerBC::calcHydroFlux
        false);
   }
   if(safe_retrieve(right_cell.stickers,ghost_)){
-    if(point_above_edge
-       (tess.GetMeshPoint(edge.neighbors.first),edge))
-      return support.first ?
-	support_atlas
-	(-support.second,
-	 tess.GetMeshPoint(edge.neighbors.first)) :
-	support_riemann
-	(rs_,
-	 tess.GetMeshPoint(edge.neighbors.first),
-	 edge,
-	 convert_to_primitive(left_cell,eos),
-	 Vector2D(0,support.second),
-	 true);
-    return support_riemann
+    return point_below_edge
+      (tess.GetMeshPoint(edge.neighbors.second),edge) ?
+      free_flow
       (rs_,
        tess.GetMeshPoint(edge.neighbors.first),
        edge,
        convert_to_primitive(left_cell,eos),
-       Vector2D(0,0),
+       true) :
+      support_riemann
+      (rs_,
+       tess.GetMeshPoint(edge.neighbors.first),
+       edge,
+       convert_to_primitive(left_cell,eos),
+       Vector2D(0,support.second),
        true);
   }
   return bulk_riemann
