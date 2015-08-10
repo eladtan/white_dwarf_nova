@@ -25,34 +25,13 @@ namespace {
     }
     return 0; 
   }
-
-  double calc_total_downward_momentum
-  (const Tessellation& tess,
-   const vector<ComputationalCell>& cell_list,
-   const vector<Extensive>& extensive_list)
-  {
-    double res = 0;
-    for(size_t i=0;i<extensive_list.size();++i){
-      const ComputationalCell& cell = cell_list[i];
-      if(!safe_retrieve(cell.stickers,string("ghost"))){
-	const Vector2D r = tess.GetCellCM(static_cast<int>(i));
-	const double radius = sqrt(ScalarProd(r,r));
-	res -= ScalarProd(r,extensive_list[i].momentum)/radius;
-      }
-    }
-    return res;
-  }
 }
 
 InnerBC::InnerBC(const RiemannSolver& rs,
 		 const string& ghost,
-		 const double acceleration,
-		 const double bottom_area,
 		 const CoreAtmosphereGravity& cag):
   rs_(rs),
   ghost_(ghost),
-  a_(acceleration),
-  bottom_area_(bottom_area),
   cag_(cag) {}
 
 namespace {
@@ -82,12 +61,8 @@ vector<Extensive> InnerBC::operator()
    const CacheData& /*cd*/,
    const EquationOfState& eos,
    const double /*time*/,
-   const double dt) const
+   const double /*dt*/) const
 {
-  const double tdm =
-    calc_total_downward_momentum(tess,
-				 cells,
-				 extensives);
   const CoreAtmosphereGravity::EnclosedMassCalculator emc
     (cag_.getCoreMass(),
      calc_radius_mass_list(tess,
@@ -102,9 +77,6 @@ vector<Extensive> InnerBC::operator()
     const Conserved hydro_flux =
       calcHydroFlux(tess,point_velocities,
 		    cells, eos, i,
-		    pair<bool,double>
-		    (tdm>0,
-		     tdm>0 ? tdm/dt/bottom_area_ : dt*a_),
 		    ac);
     res.at(i).mass = hydro_flux.Mass;
     res.at(i).momentum = hydro_flux.Momentum;
@@ -279,7 +251,6 @@ const Conserved InnerBC::calcHydroFlux
  const vector<ComputationalCell>& cells,
  const EquationOfState& eos,
  const size_t i,
- const pair<bool,double>& support,
  const CoreAtmosphereGravity::AccelerationCalculator& ac) const
 {
   const Edge& edge = tess.GetEdge(static_cast<int>(i));
@@ -336,7 +307,7 @@ const Conserved InnerBC::calcHydroFlux
   }
   if(safe_retrieve(right_cell.stickers,ghost_)){
     return point_below_edge
-      (tess.GetMeshPoint(edge.neighbors.second),edge) ?
+      (tess.GetMeshPoint(edge.neighbors.first),edge) ?
       free_flow
       (rs_,
        tess.GetMeshPoint(edge.neighbors.first),
@@ -348,7 +319,7 @@ const Conserved InnerBC::calcHydroFlux
        tess.GetMeshPoint(edge.neighbors.first),
        edge,
        convert_to_primitive(left_cell,eos),
-       Vector2D(0,support.second),
+       Vector2D(0,0),
        true);
   }
   return bulk_riemann

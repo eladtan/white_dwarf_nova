@@ -2,11 +2,14 @@
 #include "units.hpp"
 #include "sim_data.hpp"
 #include "my_main_loop.hpp"
+#include <fenv.h>
 
 using namespace std;
 
 int main(void)
 {
+  feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+
   const clock_t begin = clock();
   const Units units;
   const InitialData id
@@ -18,8 +21,8 @@ int main(void)
 		   units,
 		   CircularSection(id.radius_mid.front(),
 				   id.radius_mid.back(),
-				   0.46*M_PI,
-				   0.54*M_PI));
+				   0.48*M_PI,
+				   0.52*M_PI));
   hdsim& sim = sim_data.getSim();
   my_main_loop(sim,sim_data.getEOS());
 

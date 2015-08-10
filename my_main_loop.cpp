@@ -34,14 +34,6 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
     [new FilteredConserved("total_conserved.txt")]
     ();
   MultipleDiagnostics diag(diag_list);
-  /*
-  NuclearBurn manip(string("alpha_table"),
-		    string("ghost"),
-		    eos);
-  */
-  /*
-  AtlasSupport manip;
-  */
   MultipleManipulation manip
     (VectorInitialiser<Manipulate*>
      (new AtlasSupport())

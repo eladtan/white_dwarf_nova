@@ -11,8 +11,6 @@ public:
 
   InnerBC(const RiemannSolver& rs,
 	  const string& ghost,
-	  const double acceleration,
-	  const double bottom_area,
 	  const CoreAtmosphereGravity& cag);
 
   vector<Extensive> operator()
@@ -28,8 +26,6 @@ public:
 private:
   const RiemannSolver& rs_;
   const string ghost_;
-  const double a_;
-  const double bottom_area_;
   const CoreAtmosphereGravity& cag_;
 
   const Conserved calcHydroFlux
@@ -38,7 +34,6 @@ private:
    const vector<ComputationalCell>& cells,
    const EquationOfState& eos,
    const size_t i,
-   const pair<bool,double>& support,
    const CoreAtmosphereGravity::AccelerationCalculator& ac) const;
 };
 
