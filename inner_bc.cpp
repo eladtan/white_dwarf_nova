@@ -102,25 +102,28 @@ namespace {
     return res;
   }
 
-  Conserved free_flow(const RiemannSolver& rs,
-			    const Vector2D& rmp,
-			    const Edge& edge,
-			    const Primitive& cell,
-			    bool left_real)
+  Conserved outflow_only
+  (const RiemannSolver& rs,
+   const Vector2D& rmp,
+   const Edge& edge,
+   const Primitive& cell,
+   bool left_real)
   {
     const Vector2D& p = Parallel(edge);
     return left_real ?
       rotate_solve_rotate_back
       (rs,
        cell,
-       cell,
+       cell.Velocity.y<0 ?
+       reflect(cell,p) : cell,
        0,
        remove_parallel_component
        (edge.vertices.second-rmp,p),
        p) :
       rotate_solve_rotate_back
       (rs,
-       cell,
+       cell.Velocity.y<0 ? 
+       reflect(cell,p) : cell,
        cell,
        0,
        remove_parallel_component
@@ -291,7 +294,7 @@ const Conserved InnerBC::calcHydroFlux
       return Conserved();
     return point_below_edge
       (tess.GetMeshPoint(edge.neighbors.second),edge) ?
-      free_flow
+      outflow_only
       (rs_,
        tess.GetMeshPoint(edge.neighbors.second),
        edge,
@@ -308,7 +311,7 @@ const Conserved InnerBC::calcHydroFlux
   if(safe_retrieve(right_cell.stickers,ghost_)){
     return point_below_edge
       (tess.GetMeshPoint(edge.neighbors.first),edge) ?
-      free_flow
+      outflow_only
       (rs_,
        tess.GetMeshPoint(edge.neighbors.first),
        edge,
