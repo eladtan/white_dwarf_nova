@@ -25,3 +25,8 @@ pair<double,double> CircularSection::getAngles(void) const
 {
   return pair<double,double>(angle_left_, angle_right_);
 }
+
+pair<double,double> CircularSection::getRadii(void) const
+{
+  return pair<double,double>(radius_in_, radius_out_);
+}

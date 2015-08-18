@@ -18,6 +18,8 @@ public:
 
   pair<double,double> getAngles(void) const;
 
+  pair<double,double> getRadii(void) const;
+
 private:
   const double radius_in_;
   const double radius_out_;

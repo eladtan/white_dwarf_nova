@@ -5,8 +5,13 @@ SimData::SimData(const InitialData& id,
 		 const Units& u,
 		 const CircularSection& domain):
   pg_(Vector2D(0,0), Vector2D(1,0)),
-  outer_(Vector2D(-0.5*id.radius_mid.front(),0.9*id.radius_mid.front()),
-	 Vector2D(0.5*id.radius_mid.front(),1.2*id.radius_mid.back())),
+  outer_
+  (Vector2D
+   (1.15*domain.getRadii().second*cos(domain.getAngles().second),
+    0.95*domain.getRadii().first),
+   Vector2D
+   (1.15*domain.getRadii().second*cos(domain.getAngles().first),
+    1.05*domain.getRadii().second)),
   tess_(create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front()),
 	outer_),
   eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
