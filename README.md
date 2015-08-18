@@ -1,5 +1,5 @@
 # white_dwarf_nova
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/9NNlgchAR78/0.jpg)](http://www.youtube.com/watch?v=9NNlgchAR78)
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/dBRx_vU2ZJ8/0.jpg)](http://www.youtube.com/watch?v=dBRx_vU2ZJ8)
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/IuR85zqvEdo/0.jpg)](http://www.youtube.com/watch?v=IuR85zqvEdo)
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/37GJTGyMjhk/0.jpg)](http://www.youtube.com/watch?v=37GJTGyMjhk)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/BGkkYgUOHWU/0.jpg)](http://www.youtube.com/watch?v=BGkkYgUOHWU)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/mddQ7akI4Ls/0.jpg)](http://www.youtube.com/watch?v=mddQ7akI4Ls)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/Ujav3Ik5wYI/0.jpg)](http://www.youtube.com/watch?v=Ujav3Ik5wYI)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/NtyW1pmzekA/0.jpg)](http://www.youtube.com/watch?v=NtyW1pmzekA)
