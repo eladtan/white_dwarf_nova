@@ -21,8 +21,8 @@ int main(void)
 		   units,
 		   CircularSection(id.radius_mid.front(),
 				   id.radius_mid.back(),
-				   0.48*M_PI,
-				   0.52*M_PI));
+				   0.49*M_PI,
+				   0.51*M_PI));
   hdsim& sim = sim_data.getSim();
   my_main_loop(sim,sim_data.getEOS());
 
