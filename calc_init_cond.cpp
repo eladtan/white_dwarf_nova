@@ -17,8 +17,8 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
 					      id.temperature_list);
   const Interpolator velocity_interpolator(id.radius_list,
 					   id.velocity_list);
-  map<string,Interpolator*> tracer_intepolators;
-  for(map<string,vector<double> >::const_iterator it=
+  boost::container::flat_map<string,Interpolator*> tracer_intepolators;
+  for(boost::container::flat_map<string,vector<double> >::const_iterator it=
 	id.tracers_list.begin();
       it!=id.tracers_list.end(); ++it)
     tracer_intepolators[it->first] = new Interpolator(id.radius_mid,
@@ -27,7 +27,7 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
     res.at(i).density = id.density_list.back();
     res.at(i).velocity = Vector2D(0,0);
     res.at(i).stickers["ghost"] = true;
-    for(map<string,Interpolator*>::const_iterator it=
+    for(boost::container::flat_map<string,Interpolator*>::const_iterator it=
 	  tracer_intepolators.begin();
 	it!=tracer_intepolators.end();
 	++it)
@@ -45,7 +45,7 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
     const double density = density_interpolator(radius);
     const double temperature = temperature_interpolator(radius);
     const double velocity = velocity_interpolator(radius);
-    for(map<string,Interpolator*>::const_iterator it=
+    for(boost::container::flat_map<string,Interpolator*>::const_iterator it=
 	  tracer_intepolators.begin();
 	it!=tracer_intepolators.end();
 	++it)
@@ -57,7 +57,7 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
       res.at(i).pressure *= (1+1e-2*sin(4*q/0.2));
     res.at(i).velocity = r*velocity/radius;
   }
-  for(map<string,Interpolator*>::iterator it=
+  for(boost::container::flat_map<string,Interpolator*>::iterator it=
 	tracer_intepolators.begin();
       it!=tracer_intepolators.end();
       ++it)

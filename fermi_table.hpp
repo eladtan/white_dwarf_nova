@@ -27,11 +27,12 @@ public:
     \param im_photons Radiation contribution
     \param im_coulomb Electrostatic contribution
    */
-  FermiTable(const string& tab_file,
-	     const int im_gas,
-	     const int im_photons,
-	     const int im_coulomb,
-	     const map<string,pair<double,double> >& atomic_properties);
+  FermiTable
+  (const string& tab_file,
+   const int im_gas,
+   const int im_photons,
+   const int im_coulomb,
+   const boost::container::flat_map<string,pair<double,double> >& atomic_properties);
 
   /*! \brief Calculates the pressure
     \param density Density
@@ -39,10 +40,15 @@ public:
     \param aap First argument is the average weight number, and second is atomic number
     \return Pressure
    */
-  double dt2paz(double density, double temperature, std::pair<double,double> aap) const;
+  double dt2paz
+  (double density, 
+   double temperature, 
+   std::pair<double,double> aap) const;
 
-  double dt2p(double density, double temperature,
-	      const map<string,double>& tracers) const;
+  double dt2p
+  (double density, 
+   double temperature,
+   const boost::container::flat_map<string,double>& tracers) const;
 
   /*! \brief Calculates the Energy
     \param density Density
@@ -68,7 +74,10 @@ public:
    */
   double deaz2p(double density, double energy, std::pair<double,double> aap) const;
 
-  double de2p(double density, double energy, const map<string,double>& tracers) const;
+  double de2p
+  (double density, 
+   double energy, 
+   const boost::container::flat_map<string,double>& tracers) const;
 
   /*! \brief Calculates the energy
     \param density Density
@@ -86,7 +95,10 @@ public:
    */
   double deaz2c(double density, double energy, std::pair<double, double> aap) const;
 
-  double de2c(double density, double energy, const map<string,double>& tracers) const;
+  double de2c
+  (double density, 
+   double energy, 
+   const boost::container::flat_map<string,double>& tracers) const;
 
   /*! \brief Calculates the speed of sound
     \param density Density
@@ -98,15 +110,30 @@ public:
 
   double dpaz2t(double density, double pressure, pair<double,double> aap) const;
 
-  double dp2c(double density, double pressure, const map<string,double>& tracers) const;
+  double dp2c
+  (double density, 
+   double pressure, 
+   const boost::container::flat_map<string,double>& tracers) const;
 
-  double dp2e(double density, double pressure, const map<string,double>& tracers) const;
+  double dp2e
+  (double density, 
+   double pressure, 
+   const boost::container::flat_map<string,double>& tracers) const;
 
-  double dp2t(double density, double pressure, const map<string,double>& tracers) const;
+  double dp2t
+  (double density,
+   double pressure,
+   const boost::container::flat_map<string,double>& tracers) const;
 
-  double dp2s(double density, double pressure, const map<string,double>& tracers) const;
+  double dp2s
+  (double density, 
+   double pressure, 
+   const boost::container::flat_map<string,double>& tracers) const;
 
-  double sd2p(double entropy, double density, const map<string,double>& tracers) const;
+  double sd2p
+  (double entropy, 
+   double density, 
+   const boost::container::flat_map<string,double>& tracers) const;
 
   enum Mode{
     rho_enr,
@@ -140,15 +167,16 @@ public:
 		      std::pair<double, double> aap,
 		      ThermodynamicVariables& tv) const;
 
-  std::pair<double,double> calcAverageAtomicProperties(const map<string,double>& tracers) const;
+  std::pair<double,double> calcAverageAtomicProperties
+  (const boost::container::flat_map<string,double>& tracers) const;
 
-  const map<string,pair<double,double> >& getAtomicProperties(void) const;
+  const boost::container::flat_map<string,pair<double,double> >& getAtomicProperties(void) const;
 
 private:
   mutable int im_gas_;
   mutable int im_photons_;
   mutable int im_coulomb_;
-  const std::map<string,std::pair<double,double> > atomic_properties_;
+  const boost::container::flat_map<string,std::pair<double,double> > atomic_properties_;
 };
 
 #endif // FERMI_TABLE_HPP

@@ -3,11 +3,11 @@
 
 #include <map>
 #include <string>
+#include "boost/container/flat_map.hpp"
 
-using std::map;
 using std::string;
 using std::pair;
 
-map<string,pair<double,double> > generate_atomic_properties(void);
+boost::container::flat_map<string,pair<double,double> > generate_atomic_properties(void);
 
 #endif // GENERATE_ATOMIC_PROPERTIES_HPP

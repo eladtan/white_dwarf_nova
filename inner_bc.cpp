@@ -81,7 +81,7 @@ vector<Extensive> InnerBC::operator()
     res.at(i).mass = hydro_flux.Mass;
     res.at(i).momentum = hydro_flux.Momentum;
     res.at(i).energy = hydro_flux.Energy;
-    for(map<string,double>::const_iterator it =
+    for(boost::container::flat_map<string,double>::const_iterator it =
 	  cells.front().tracers.begin();
 	it!=cells.front().tracers.end();
 	++it)

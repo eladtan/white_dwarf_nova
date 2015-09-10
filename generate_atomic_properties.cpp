@@ -1,8 +1,8 @@
 #include "generate_atomic_properties.hpp"
 
-map<string,pair<double,double> > generate_atomic_properties(void)
+boost::container::flat_map<string,pair<double,double> > generate_atomic_properties(void)
 {
-  map<string,pair<double,double> > res;
+  boost::container::flat_map<string,pair<double,double> > res;
   res["He4"] = pair<double,double>(4,2);
   res["C12"] = pair<double,double>(12,6);
   res["O16"] = pair<double,double>(16,8);
