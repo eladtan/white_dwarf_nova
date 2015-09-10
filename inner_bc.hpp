@@ -4,29 +4,24 @@
 #include "source/newtonian/two_dimensional/flux_calculator_2d.hpp"
 #include "source/newtonian/common/riemann_solver.hpp"
 #include "core_atmosphere_gravity.hpp"
+#include "source/newtonian/two_dimensional/HydroBoundaryConditions.hpp"
 
-class InnerBC: public FluxCalculator
+class InnerBC: public HydroBoundaryConditions
 {
 public:
 
   InnerBC(const RiemannSolver& rs,
 	  const string& ghost,
-	  const CoreAtmosphereGravity& cag);
+	  const EquationOfState& eos_);
 
-  vector<Extensive> operator()
-  (const Tessellation& tess,
-   const vector<Vector2D>& point_velocities,
-   const vector<ComputationalCell>& cells,
-   const vector<Extensive>& extensives,
-   const CacheData& cd,
-   const EquationOfState& eos,
-   const double /*time*/,
-   const double /*dt*/) const;
+  vector< pair< size_t, Extensive > > operator() 
+  (const Tessellation& tess, 
+   const vector<ComputationalCell>& cells) const;
 
 private:
   const RiemannSolver& rs_;
   const string ghost_;
-  const CoreAtmosphereGravity& cag_;
+  const EquationOfState& eos_;
 
   const Conserved calcHydroFlux
   (const Tessellation& tess,

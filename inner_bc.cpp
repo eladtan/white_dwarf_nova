@@ -3,91 +3,96 @@
 #include "safe_retrieve.hpp"
 
 namespace {
-  double calc_tracer_flux(const Edge& edge,
-			  const Tessellation& tess,
-			  const vector<ComputationalCell>& cells,
-			  const string& name,
-			  const Conserved& hf)
-  {
-    if(hf.Mass>0 && 
-       edge.neighbors.first>0 && 
-       edge.neighbors.first<tess.GetPointNo()){
-      assert(cells.at(static_cast<size_t>(edge.neighbors.first)).tracers.count(name)==1);
-      return hf.Mass*
-	cells.at(static_cast<size_t>(edge.neighbors.first)).tracers.find(name)->second;
-    }
-    if(hf.Mass<0 && 
-       edge.neighbors.second>0 && 
-       edge.neighbors.second<tess.GetPointNo()){
-      assert(cells.at(static_cast<size_t>(edge.neighbors.second)).tracers.count(name)==1);
-      return hf.Mass*
-	cells.at(static_cast<size_t>(edge.neighbors.second)).tracers.find(name)->second;
-    }
-    return 0; 
-  }
-}
 
-InnerBC::InnerBC(const RiemannSolver& rs,
-		 const string& ghost,
-		 const CoreAtmosphereGravity& cag):
-  rs_(rs),
-  ghost_(ghost),
-  cag_(cag) {}
-
-namespace {
-  const vector<pair<double,double> > calc_radius_mass_list
-  (const Tessellation& tess,
-   const vector<ComputationalCell>& cell_list,
-   const vector<Extensive>& extensive_live)
+  Extensive conserved_to_extensive
+  (const Conserved& c, const ComputationalCell& cell)
   {
-    vector<pair<double,double> > res;
-    for(size_t i=0;i<cell_list.size();++i){
-      if(!safe_retrieve(cell_list[i].stickers,
-			string("ghost")))
-	res.push_back
-	  (pair<double,double>
-	   (abs(tess.GetCellCM(static_cast<int>(i))),
-	    extensive_live[i].mass));
-    }
+    Extensive res;
+    res.mass = c.Mass;
+    res.momentum = c.Momentum;
+    res.energy = c.Energy;
+    for(boost::container::flat_map<string,double>::const_iterator it=
+	  cell.tracers.begin();
+	it!=cell.tracers.end();++it)
+      res.tracers[it->first] = (it->second)*c.Mass;
     return res;
   }
 }
 
-vector<Extensive> InnerBC::operator()
-  (const Tessellation& tess,
-   const vector<Vector2D>& point_velocities,
-   const vector<ComputationalCell>& cells,
-   const vector<Extensive>& extensives,
-   const CacheData& /*cd*/,
-   const EquationOfState& eos,
-   const double /*time*/,
-   const double /*dt*/) const
+InnerBC::InnerBC
+(const RiemannSolver& rs,
+ const string& ghost,
+ const EquationOfState& eos):
+  rs_(rs),
+  ghost_(ghost),
+  eos_(eos) {}
+
+namespace {
+
+  Vector2D normalize
+  (const Vector2D& v)
+  {
+    return v/abs(v);
+  }
+}
+
+vector<pair<size_t,Extensive> > InnerBC::operator()
+  (const Tessellation& tess, 
+   const vector<ComputationalCell>& cells) const
 {
-  const CoreAtmosphereGravity::EnclosedMassCalculator emc
-    (cag_.getCoreMass(),
-     calc_radius_mass_list(tess,
-			   cells,
-			   extensives),
-     cag_.getSampleRadii(),
-     cag_.getSection2Shell());
-  const CoreAtmosphereGravity::AccelerationCalculator ac
-    (cag_.getGravitationConstant(), emc);
-  vector<Extensive> res(tess.getAllEdges().size());
-  for(size_t i=0;i<tess.getAllEdges().size();++i){
-    const Conserved hydro_flux =
-      calcHydroFlux(tess,point_velocities,
-		    cells, eos, i,
-		    ac);
-    res.at(i).mass = hydro_flux.Mass;
-    res.at(i).momentum = hydro_flux.Momentum;
-    res.at(i).energy = hydro_flux.Energy;
-    for(boost::container::flat_map<string,double>::const_iterator it =
-	  cells.front().tracers.begin();
-	it!=cells.front().tracers.end();
-	++it)
-      res.at(i).tracers[it->first] =
-	calc_tracer_flux(tess.getAllEdges().at(i),
-			 tess,cells,it->first,hydro_flux);
+  vector<pair<size_t,Extensive> > res;
+  const vector<Edge>& edge_list = tess.getAllEdges();
+  for(size_t i=0;i<edge_list.size();++i){
+    const Edge& edge = edge_list[i];
+    if(edge.neighbors.first<0 ||
+       edge.neighbors.second<0 ||
+       edge.neighbors.first>tess.GetPointNo() ||
+       edge.neighbors.second>tess.GetPointNo())
+      continue;
+    if(safe_retrieve(cells.at(static_cast<size_t>(edge.neighbors.first)).stickers,ghost_)){
+      if(safe_retrieve(cells.at(static_cast<size_t>(edge.neighbors.second)).stickers,ghost_)){
+	res.push_back(pair<size_t,Extensive>(i,Extensive()));
+	continue;
+      }
+      const Vector2D p = 
+	normalize(edge.vertices.second - edge.vertices.first);
+      const Vector2D n =
+	normalize(tess.GetMeshPoint(edge.neighbors.second)-
+		  tess.GetMeshPoint(edge.neighbors.first));
+      const ComputationalCell& right_cell = 
+	cells.at(static_cast<size_t>(edge.neighbors.second));
+      const Primitive right = 
+	convert_to_primitive(right_cell,eos_);
+      const Conserved c = rotate_solve_rotate_back
+	(rs_,
+	 reflect(right,p),
+	 right,
+	 0,n,p);
+      res.push_back
+	(pair<size_t,Extensive>
+	 (i,conserved_to_extensive
+	  (c,right_cell)));
+    }
+    if(safe_retrieve(cells.at(static_cast<size_t>(edge.neighbors.second)).stickers,ghost_)){
+      const Vector2D p = 
+	normalize(edge.vertices.second - edge.vertices.first);
+      const Vector2D n =
+	normalize(tess.GetMeshPoint(edge.neighbors.second)-
+		  tess.GetMeshPoint(edge.neighbors.first));
+      const ComputationalCell& left_cell = 
+	cells.at(static_cast<size_t>(edge.neighbors.first));
+      const Primitive left = 
+	convert_to_primitive(left_cell,eos_);
+      const Conserved c = rotate_solve_rotate_back
+	(rs_,
+	 left,
+	 reflect(left,p),
+	 0,n,p);
+      res.push_back
+	(pair<size_t,Extensive>
+	 (i,conserved_to_extensive
+	  (c,left_cell)));
+    }
   }
   return res;
 }

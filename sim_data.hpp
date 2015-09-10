@@ -25,7 +25,6 @@
 #include "source/newtonian/two_dimensional/modular_flux_calculator.hpp"
 #include "source/newtonian/two_dimensional/ghost_point_generators/RigidWallGenerator.hpp"
 #include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
-#include "source/newtonian/two_dimensional/idle_hbc.hpp"
 
 class SimData
 {
@@ -52,7 +51,7 @@ private:
   const SimpleCFL tsf_;
   const RigidWallGenerator gpg_;
   const LinearGaussImproved sr_;
-  const IdleHBC hbc_;
+  const InnerBC hbc_;
   const ModularFluxCalculator fc_;
   const LazyExtensiveUpdater eu_;
   const LazyCellUpdater cu_;
