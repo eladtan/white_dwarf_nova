@@ -1,3 +1,4 @@
+#include <cmath>
 #include "calc_init_cond.hpp"
 #include "create_pressure_reference.hpp"
 #include "vector_io.hpp"
@@ -36,11 +37,8 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
 				  id.temperature_list.back(),
 				  res.at(i).tracers);
     const Vector2D r = tess.GetCellCM(static_cast<int>(i));
+    const double q = atan(r.y/r.x);
     const double radius = abs(r);
-    /*
-      if(radius<id.radius_list.front() || radius>id.radius_list.back())
-      continue;
-    */
     if(!cd(r))
       continue;
     res.at(i).stickers["ghost"] = false;
@@ -54,7 +52,9 @@ vector<ComputationalCell> calc_init_cond(const Tessellation& tess,
       res.at(i).tracers[it->first] = (*(it->second))(radius);
     const double pressure = eos.dt2p(density, temperature, res.at(i).tracers);
     res.at(i).density = density;
-    res.at(i).pressure = pressure;
+    res.at(i).pressure = pressure*(1+1e-2*sin(2*q/0.2));
+    if(res.at(i).tracers["He4"]>0.5)
+      res.at(i).pressure *= (1+1e-2*sin(4*q/0.2));
     res.at(i).velocity = r*velocity/radius;
   }
   for(map<string,Interpolator*>::iterator it=
