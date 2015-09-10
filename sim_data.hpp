@@ -22,6 +22,10 @@
 #include "circular_section.hpp"
 #include "calc_init_cond.hpp"
 #include "core_atmosphere_gravity.hpp"
+#include "source/newtonian/two_dimensional/modular_flux_calculator.hpp"
+#include "source/newtonian/two_dimensional/ghost_point_generators/RigidWallGenerator.hpp"
+#include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
+#include "source/newtonian/two_dimensional/idle_hbc.hpp"
 
 class SimData
 {
@@ -46,7 +50,10 @@ private:
   CylindricalComplementary geom_force_;
   SeveralSources force_;
   const SimpleCFL tsf_;
-  const InnerBC fc_;
+  const RigidWallGenerator gpg_;
+  const LinearGaussImproved sr_;
+  const IdleHBC hbc_;
+  const ModularFluxCalculator fc_;
   const LazyExtensiveUpdater eu_;
   const LazyCellUpdater cu_;
   hdsim sim_;
