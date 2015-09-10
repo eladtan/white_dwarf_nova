@@ -27,15 +27,6 @@ InnerBC::InnerBC
   ghost_(ghost),
   eos_(eos) {}
 
-namespace {
-
-  Vector2D normalize
-  (const Vector2D& v)
-  {
-    return v/abs(v);
-  }
-}
-
 vector<pair<size_t,Extensive> > InnerBC::operator()
   (const Tessellation& tess, 
    const vector<ComputationalCell>& cells) const
