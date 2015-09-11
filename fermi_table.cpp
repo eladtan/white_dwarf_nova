@@ -49,8 +49,10 @@ double FermiTable::dt2paz(double density, double temperature,
 			     &ThermodynamicVariables::pressure);
 }
 
-double FermiTable::dt2p(double density, double temperature,
-			const map<string,double>& tracers) const
+double FermiTable::dt2p
+(double density,
+ double temperature,
+ const boost::container::flat_map<string,double>& tracers) const
 {
   return dt2paz(density, temperature, calcAverageAtomicProperties(tracers));
 }
@@ -98,12 +100,18 @@ double FermiTable::deaz2c(double density, double energy,
 			     &ThermodynamicVariables::sound_speed);
 }
 
-double FermiTable::de2c(double density, double energy, const map<string,double>& tracers) const
+double FermiTable::de2c
+(double density,
+ double energy, 
+ const boost::container::flat_map<string,double>& tracers) const
 {
   return deaz2c(density, energy, calcAverageAtomicProperties(tracers));
 }
 
-double FermiTable::de2p(double density, double energy, const map<string,double>& tracers) const
+double FermiTable::de2p
+(double density,
+ double energy,
+ const boost::container::flat_map<string,double>& tracers) const
 {
   return deaz2p(density, energy, calcAverageAtomicProperties(tracers));
 }
@@ -119,17 +127,26 @@ double FermiTable::dpaz2c(double density, double pressure,
 			     &ThermodynamicVariables::sound_speed);
 }
 
-double FermiTable::dp2c(double density, double pressure, const map<string,double>& tracers) const
+double FermiTable::dp2c
+(double density,
+ double pressure,
+ const boost::container::flat_map<string,double>& tracers) const
 {
   return dpaz2c(density,pressure,calcAverageAtomicProperties(tracers));
 }
 
-double FermiTable::dp2e(double density, double pressure, const map<string,double>& tracers) const
+double FermiTable::dp2e
+(double density,
+ double pressure,
+ const boost::container::flat_map<string,double>& tracers) const
 {
   return dpaz2e(density,pressure,calcAverageAtomicProperties(tracers));
 }
 
-double FermiTable::dp2t(double density, double pressure, const map<string,double>& tracers) const
+double FermiTable::dp2t
+(double density,
+ double pressure,
+ const boost::container::flat_map<string,double>& tracers) const
 {
   return dpaz2t(density,pressure,calcAverageAtomicProperties(tracers));
 }
@@ -231,7 +248,7 @@ void FermiTable::calcThermoVars(Mode mode,
 }
 
 std::pair<double,double> FermiTable::calcAverageAtomicProperties
-(const map<string,double>& tracers) const
+(const boost::container::flat_map<string,double>& tracers) const
 {
   double total = 0;
   double aa = 0;
@@ -250,14 +267,18 @@ std::pair<double,double> FermiTable::calcAverageAtomicProperties
   return std::pair<double,double>(total/aa,zz/aa);
 }
 
-double FermiTable::dp2s(double /*density*/, double /*pressure*/,
-			const map<string,double>& /*tracers*/) const
+double FermiTable::dp2s
+(double /*density*/, 
+ double /*pressure*/,
+ const boost::container::flat_map<string,double>& /*tracers*/) const
 {
   throw "Method not implemented";
 }
 
-double FermiTable::sd2p(double /*entropy*/, double /*density*/,
-			const map<string,double>& /*tracers*/) const
+double FermiTable::sd2p
+(double /*entropy*/, 
+ double /*density*/,
+ const boost::container::flat_map<string,double>& /*tracers*/) const
 {
   throw "Method not implemented";
 }

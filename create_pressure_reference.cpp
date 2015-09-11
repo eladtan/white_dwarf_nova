@@ -5,7 +5,7 @@ vector<double> create_pressure_reference(const FermiTable& eos,
 {
   vector<double> res(id.radius_list.size());
   for(size_t i=0;i<id.density_list.size();++i){
-    map<string,double> tracer;
+    boost::container::flat_map<string,double> tracer;
     for(map<string,vector<double> >::const_iterator it=
 	  id.tracers_list.begin();
 	it!=id.tracers_list.end();

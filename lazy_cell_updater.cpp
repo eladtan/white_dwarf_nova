@@ -20,7 +20,7 @@ vector<ComputationalCell> LazyCellUpdater::operator()
     const double total_energy = extensives.at(i).energy/extensives.at(i).mass;
     const double kinetic_energy = 0.5*ScalarProd(res.at(i).velocity, res.at(i).velocity);
     const double thermal_energy = total_energy - kinetic_energy;
-    for(map<string,double>::const_iterator it =
+    for(boost::container::flat_map<string,double>::const_iterator it =
 	  extensives.at(i).tracers.begin();
 	it!=extensives.at(i).tracers.end();
 	++it)

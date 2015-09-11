@@ -70,8 +70,9 @@ namespace {
     return pair<double,vector<double> >(qrec,xn);
   }
 
-  vector<double> serialize_tracers(const map<string,double>& tracers,
-				   const vector<string>& isotope_list)
+  vector<double> serialize_tracers
+  (const boost::container::flat_map<string,double>& tracers,
+   const vector<string>& isotope_list)
   {
     vector<double> res;
     for(size_t i=0;i<isotope_list.size();++i){
@@ -80,11 +81,13 @@ namespace {
     return res;
   }
 
-  map<string,double> reassemble_tracers(const vector<double>& compositions,
-					const vector<string>& isotope_list)
+  boost::container::flat_map<string,double> 
+  reassemble_tracers
+  (const vector<double>& compositions,
+   const vector<string>& isotope_list)
   {
     assert(compositions.size()==isotope_list.size());
-    map<string,double> res;
+    boost::container::flat_map<string,double> res;
     for(size_t i=0;i<compositions.size();++i)
       res[isotope_list[i]] = compositions[i];
     return res;

@@ -1,7 +1,7 @@
 #include "lazy_extensive_updater.hpp"
 #include "bracketed.hpp"
+#include "safe_retrieve.hpp"
 #include <string>
-#include "safe_map_read.hpp"
 
 using std::string;
 
@@ -21,11 +21,11 @@ void LazyExtensiveUpdater::operator()
     const Edge& edge = edge_list.at(i);
     const Extensive delta = dt*cd.areas[i]*fluxes.at(i);
     if(bracketed(0,edge.neighbors.first,tess.GetPointNo()) &&
-       !safe_map_read
+       !safe_retrieve
        (cells.at(static_cast<size_t>(edge.neighbors.first)).stickers,string("ghost")))
       extensive.at(static_cast<size_t>(edge.neighbors.first)) -= delta;
     if(bracketed(0,edge.neighbors.second,tess.GetPointNo()) &&
-       !safe_map_read
+       !safe_retrieve
        (cells.at(static_cast<size_t>(edge.neighbors.second)).stickers,string("ghost")))
       extensive.at(static_cast<size_t>(edge.neighbors.second)) += delta;
   }

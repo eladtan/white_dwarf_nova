@@ -9,9 +9,10 @@ class InnerBC: public FluxCalculator
 {
 public:
 
-  InnerBC(const RiemannSolver& rs,
-	  const string& ghost,
-	  const CoreAtmosphereGravity& cag);
+  InnerBC
+  (const RiemannSolver& rs,
+   const string& ghost,
+   const CoreAtmosphereGravity& cag);
 
   vector<Extensive> operator()
   (const Tessellation& tess,
