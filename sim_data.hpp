@@ -25,6 +25,7 @@
 #include "source/newtonian/two_dimensional/modular_flux_calculator.hpp"
 #include "source/newtonian/two_dimensional/ghost_point_generators/RigidWallGenerator.hpp"
 #include "source/newtonian/two_dimensional/interpolations/LinearGaussImproved.hpp"
+#include "reflective_ghost_throughout.hpp"
 
 class SimData
 {
@@ -49,7 +50,7 @@ private:
   CylindricalComplementary geom_force_;
   SeveralSources force_;
   const SimpleCFL tsf_;
-  const RigidWallGenerator gpg_;
+  const ReflectiveGhostThroughout gpg_;
   const LinearGaussImproved sr_;
   const InnerBC hbc_;
   const ModularFluxCalculator fc_;
