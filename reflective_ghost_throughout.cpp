@@ -1,4 +1,9 @@
+#include "safe_retrieve.hpp"
 #include "reflective_ghost_throughout.hpp"
+#include "source/misc/utils.hpp"
+
+ReflectiveGhostThroughout::ReflectiveGhostThroughout
+(const string& ghost): ghost_(ghost) {}
 
 namespace {
   ComputationalCell reverse_normal_velocity
@@ -11,6 +16,46 @@ namespace {
     res.velocity = 2*ScalarProd(res.velocity,p)*p - res.velocity;
     return res;
   }
+
+  vector<pair<size_t, size_t> > get_special_interface
+  (const Tessellation& tess,
+   const vector<ComputationalCell>& cells,
+   const string& ghost)
+  {
+    vector<pair<size_t, size_t> > res;
+    const vector<Edge>& edge_list = tess.getAllEdges();
+    for(size_t i=0;i<edge_list.size();++i){
+      const Edge& edge = edge_list[i];
+      if(edge.neighbors.first<0 ||
+	 edge.neighbors.second<0 ||
+	 edge.neighbors.first>tess.GetPointNo() ||
+	 edge.neighbors.second>tess.GetPointNo())
+	continue;
+      if(safe_retrieve
+	 (cells.at
+	  (static_cast<size_t>
+	   (edge.neighbors.first)).stickers,
+	  ghost) &&
+	 !safe_retrieve
+	 (cells.at
+	  (static_cast<size_t>
+	   (edge.neighbors.second)).stickers,
+	  ghost))
+	res.push_back(pair<size_t,size_t>(i,1));
+      else if(safe_retrieve
+	      (cells.at
+	       (static_cast<size_t>
+		(edge.neighbors.second)).stickers,
+	       ghost) &&
+	      !safe_retrieve
+	      (cells.at
+	       (static_cast<size_t>
+		(edge.neighbors.first)).stickers,
+	       ghost))
+	res.push_back(pair<size_t,size_t>(i,2));
+    }
+    return res;
+  }
 }
 
 boost::container::flat_map<size_t, ComputationalCell>
@@ -20,7 +65,12 @@ ReflectiveGhostThroughout::operator()
 {
   boost::container::flat_map<size_t, ComputationalCell> res;
   const vector<pair<size_t, size_t> > ghosts =
-    GetOuterEdgesIndeces(tess);
+    join
+    (GetOuterEdgesIndeces(tess),
+     get_special_interface
+     (tess,
+      cells,
+      ghost_));
   for(size_t i=0;i<ghosts.size();++i){
     const Edge& edge = tess.GetEdge
       (static_cast<int>(ghosts[i].first));

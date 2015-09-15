@@ -4,10 +4,14 @@
 #include "source/newtonian/two_dimensional/GhostPointGenerator.hpp"
 
 using std::pair;
+using std::string;
 
 class ReflectiveGhostThroughout: public GhostPointGenerator
 {
 public:
+
+  ReflectiveGhostThroughout
+  (const string& ghost);
 
   boost::container::flat_map<size_t, ComputationalCell>
   operator()
@@ -20,6 +24,9 @@ public:
    const vector<ComputationalCell>& cells,
    const vector<pair<ComputationalCell,ComputationalCell> >& gradients,
    size_t ghost_index) const;
+
+private:
+  const string ghost_;
 };
 
 #endif // REFLECTIVE_GHOST_THROUGHOUT_HPP

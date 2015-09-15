@@ -28,7 +28,7 @@ SimData::SimData(const InitialData& id,
 	 (&geom_force_)
 	 ()),
   tsf_(0.3),
-  gpg_(),
+  gpg_("ghost"),
   sr_
   (eos_,
    gpg_),
