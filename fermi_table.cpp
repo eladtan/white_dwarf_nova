@@ -2,9 +2,9 @@
 #include "fermi_table.hpp"
 
 extern "C" {
-  void init_tabular_(const char* eos_tab_file);
+  void INIT_TABULAR (const char* eos_tab_file);
 
-  void eos_fermi_(int* keyeos,
+  void EOS_FERMI (int* keyeos,
 		  int* im_gas,
 		  int* im_photons,
 		  int* im_Coulomb,
@@ -35,7 +35,7 @@ FermiTable::FermiTable(const string& tab_file,
   atomic_properties_(atomic_properties)
 {
   assert(tab_file.size()<80);
-  init_tabular_(tab_file.c_str());
+  INIT_TABULAR(tab_file.c_str());
 }
 
 double FermiTable::dt2paz(double density, double temperature,
@@ -227,7 +227,7 @@ void FermiTable::calcThermoVars(Mode mode,
   double dedro = 0;
   double dedt = 0;
   int keyerr = 0;
-  eos_fermi_(&keyte,
+  EOS_FERMI(&keyte,
 	     &im_gas_,
 	     &im_photons_,
 	     &im_coulomb_,

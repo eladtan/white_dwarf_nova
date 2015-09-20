@@ -5,9 +5,9 @@
 
 extern "C" {
 
-  void initnet_(const char* rfile);
+  void INITNET(const char* rfile);
 
-  void burn_step_(int* indexeos,
+  void BURN_STEP(int* indexeos,
 		  double* density,
 		  double* energy,
 		  double* tburn,
@@ -41,7 +41,7 @@ namespace {
     double tmp_nse = 1e10;
     char screen_type[80] = "default";
     int key_done = 0;
-    burn_step_(&indexeos,
+    BURN_STEP(&indexeos,
 	       &density,
 	       &energy,
 	       &tburn,
@@ -118,7 +118,7 @@ NuclearBurn::NuclearBurn
   energy_history_fname_(ehf),
   energy_history_()
 {
-  initnet_(rfile.c_str());
+  INITNET(rfile.c_str());
 }
 
 void NuclearBurn::operator()(hdsim& sim)

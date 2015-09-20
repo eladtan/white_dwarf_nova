@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <ctime>
 #include "units.hpp"
 #include "sim_data.hpp"

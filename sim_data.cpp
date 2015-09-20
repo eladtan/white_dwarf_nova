@@ -9,7 +9,7 @@ SimData::SimData(const InitialData& id,
 	 Vector2D(0.5*id.radius_mid.front(),1.2*id.radius_mid.back())),
   tess_(create_grid(outer_.getBoundary(),2e-3,0.9*id.radius_list.front()),
 	outer_),
-  eos_("eos_tab.coded",1,1,0,generate_atomic_properties()),
+  eos_("C:/RichWD/white_dwarf_nova/eos_tab.coded",1,1,0,generate_atomic_properties()),
   rs_(),
   point_motion_(),
   cag_

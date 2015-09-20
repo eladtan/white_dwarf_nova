@@ -19,7 +19,7 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
   write_snapshot_to_hdf5(sim,"initial.h5",
 			 vector<DiagnosticAppendix*>
 			 (1,new TemperatureAppendix(eos)));
-  const double tf = 20;
+  const double tf = 0.001;
   SafeTimeTermination term_cond(tf, 1e6);
   vector<DiagnosticFunction*> diag_list = VectorInitialiser<DiagnosticFunction*>()
     [new ConsecutiveSnapshots
@@ -37,7 +37,7 @@ void my_main_loop(hdsim& sim, const FermiTable& eos)
   MultipleManipulation manip
     (VectorInitialiser<Manipulate*>
      (new AtlasSupport())
-     (new NuclearBurn(string("alpha_table"),
+     (new NuclearBurn(string("C:/RichWD/white_dwarf_nova/alpha_table"),
 		      string("ghost"),
 		      eos,
 		      string("burn_energy_history.txt")))
